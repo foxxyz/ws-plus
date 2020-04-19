@@ -63,6 +63,7 @@
       "jest"
     ],
     "rules": {
+      "eqeqeq": ["error", "always"],
       "indent": [
         "error",
         4

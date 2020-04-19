@@ -31,7 +31,7 @@ class Client extends EventEmitter {
     closed(e) {
         this.connected = false
         // Regular closure, do not reconnect
-        if (e.code == 1000) return
+        if (e.code === 1000) return
         // Otherwise, reconnect
         console.warn(`Socket closed. Retrying in ${this.reconnectInterval} seconds...`)
         setTimeout(this.connect.bind(this), this.reconnectInterval * 1000)
@@ -68,7 +68,7 @@ class Client extends EventEmitter {
             if (this.queue.length >= this.maxQueueSize) return
             console.warn(`'${action}' message queued, waiting for next connection...`)
             this.queue.push(arguments)
-            if (this.queue.length == this.maxQueueSize) console.warn('Max queue size reached for socket, no further messages will be queued')
+            if (this.queue.length === this.maxQueueSize) console.warn('Max queue size reached for socket, no further messages will be queued')
             return
         }
         const message = [action, data]
