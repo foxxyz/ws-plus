@@ -1,7 +1,7 @@
-Wizzle: Dead Simple Websockets
+Wizzle: Dead Simple WebSockets
 ==============================
 
-Dead simple websocket communication for both Node.js and in-browser use.
+Dead simple WebSocket communication for both Node.js and in-browser.
 
  * Abstraction on top of [the wonderful `ws` library](https://www.npmjs.com/package/ws)
  * Event-based
@@ -42,7 +42,7 @@ server.on('ticket/request', (data, client) => {
 ### Client
 
 ```javascript
-import { Client } from 'wizzle/client'
+import { Client } from 'wizzle'
 
 const client = new Client('ws://localhost:8082')
 
@@ -65,7 +65,7 @@ client.send('ticket/request', { someData: 'etc' })
 When creating your app:
 
 ```javascript
-import { Client } from 'wizzle/client'
+import { Client } from 'wizzle'
 
 // Create your client
 const socketClient = new Client('ws://localhost:8082')
@@ -95,5 +95,3 @@ License
 -------
 
 MIT
-
-
