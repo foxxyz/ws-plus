@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Dead Simple Websockets",
   "main": "index.js",
+  "module": "client.js",
   "scripts": {
     "test": "jest"
   },

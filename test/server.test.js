@@ -26,7 +26,7 @@ describe('Server Creation', () => {
     })
     it('allows host overrides', async() => {
         const info = jest.spyOn(console, 'info')
-        const server = new Server({ host: '0.0.0.0'})
+        const server = new Server({ host: '0.0.0.0' })
         await new Promise(res => server.server.on('listening', res))
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://0.0.0.0:8090. Awaiting clients...')
         await server.close()
@@ -84,7 +84,7 @@ describe('Client Handling', () => {
             })
             receivers.push(new Promise((res) => {
                 mockClient.on('message', (data) => {
-                    res(data == JSON.stringify(['testMessage', {testKey: 239}]))
+                    res(data === JSON.stringify(['testMessage', { testKey: 239 }]))
                 })
             }))
             clients.push(mockClient)
@@ -121,7 +121,7 @@ describe('Client Handling', () => {
             receivers.push(new Promise((res, rej) => {
                 let timeout = null
                 mockClient.on('message', (data) => {
-                    res(data === JSON.stringify(['specialMessage', {testKey: 239}]))
+                    res(data === JSON.stringify(['specialMessage', { testKey: 239 }]))
                     clearTimeout(timeout)
                 })
                 // Auto-timeout if no message received

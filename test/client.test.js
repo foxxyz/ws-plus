@@ -1,4 +1,4 @@
-import { Client } from '../client'
+import { Client } from '..'
 
 // Stand-in for a real WebSocket
 class MockSocket {
