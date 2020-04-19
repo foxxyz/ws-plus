@@ -3,7 +3,7 @@ Wizzle: Dead Simple WebSockets
 
 Dead simple WebSocket communication for both Node.js and in-browser.
 
- * Abstraction on top of [the wonderful `ws` library](https://www.npmjs.com/package/ws)
+ * Abstraction on top of the wonderful [`ws` library](https://www.npmjs.com/package/ws)
  * Event-based
  * Automatic reconnections
  * Automatic connection support
@@ -19,8 +19,8 @@ Installation
 npm install wizzle
 ```
 
-Usage
------
+Usage Examples
+--------------
 
 ### Server
 
