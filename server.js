@@ -24,14 +24,14 @@ class Server extends EventEmitter {
         return Promise.all(this.clients.map(c => skipClient == c ? Promise.resolve() : c.send(action, data)))
     }
     async broadcastSubscribers(action, data) {
-        let subscribers = this.subscribers[action] || []
+        const subscribers = this.subscribers[action] || []
         return Promise.all(subscribers.map(c => c.send(action, data)))
     }
     async close() {
         await new Promise(res => this.server.close(res))
         // Wait for all clients to be disconnected
         return new Promise(res => {
-            let poller = setInterval(() => {
+            const poller = setInterval(() => {
                 if (this.clients.length == 0) {
                     clearInterval(poller)
                     res()
@@ -40,7 +40,7 @@ class Server extends EventEmitter {
         })
     }
     remove(client) {
-        for(let key in this.subscribers) {
+        for(const key in this.subscribers) {
             this.subscribers[key] = this.subscribers[key].filter(c => c.id != client.id)
         }
         this.clients = this.clients.filter(c => c.id != client.id)
@@ -48,7 +48,7 @@ class Server extends EventEmitter {
     subscribe(actions, client) {
         if (this.verbosity > 0) console.info(`Client ${client.id} subscribing to ${actions}`)
         actions = [].concat(actions)
-        for(let action of actions) {
+        for(const action of actions) {
             if (!this.subscribers[action]) this.subscribers[action] = []
             this.subscribers[action].push(client)
         }
@@ -56,7 +56,7 @@ class Server extends EventEmitter {
     unsubscribe(actions, client) {
         if (this.verbosity > 0) console.info(`Client ${client.id} unsubscribing from ${actions}`)
         actions = [].concat(actions)
-        for(let action of actions) {
+        for(const action of actions) {
             if (!this.subscribers[action]) continue
             this.subscribers[action] = this.subscribers[action].filter(c => c.id != client.id)
         }
