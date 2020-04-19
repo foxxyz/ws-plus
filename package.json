@@ -1,0 +1,94 @@
+{
+  "name": "wizzle",
+  "version": "1.0.0",
+  "description": "Dead Simple Websockets",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "events": "^3.1.0",
+    "ws": "^7.2.3"
+  },
+  "keywords": [
+    "websockets",
+    "websocket",
+    "ws",
+    "vue"
+  ],
+  "browser": {
+    "ws": false
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "text"
+    ],
+    "silent": true,
+    "verbose": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/foxxyz/wizzle"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "babel-jest": "^25.3.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "jest": "^25.3.0"
+  },
+  "author": "Ivo Janssen <hello@ivo.la>",
+  "contributors": [
+    "Matthew McCartney <mattsmccartney@gmail.com>"
+  ],
+  "license": "MIT",
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "commonjs": true,
+      "es6": true,
+      "node": true,
+      "jest/globals": true
+    },
+    "extends": [
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "jest"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ],
+      "linebreak-style": [
+        "error",
+        "unix"
+      ],
+      "quotes": [
+        "error",
+        "single"
+      ],
+      "no-console": [
+        "error",
+        {
+          "allow": [
+            "warn",
+            "info",
+            "error"
+          ]
+        }
+      ],
+      "semi": [
+        "error",
+        "never"
+      ]
+    }
+  }
+}
