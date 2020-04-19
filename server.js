@@ -21,11 +21,11 @@ class Server extends EventEmitter {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))
     }
     async broadcast(action, data, skipClient) {
-        return await Promise.all(this.clients.map(c => skipClient == c ? Promise.resolve() : c.send(action, data)))
+        return Promise.all(this.clients.map(c => skipClient == c ? Promise.resolve() : c.send(action, data)))
     }
     async broadcastSubscribers(action, data) {
         let subscribers = this.subscribers[action] || []
-        return await Promise.all(subscribers.map(c => c.send(action, data)))
+        return Promise.all(subscribers.map(c => c.send(action, data)))
     }
     async close() {
         await new Promise(res => this.server.close(res))
