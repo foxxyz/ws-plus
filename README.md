@@ -1,6 +1,8 @@
 Wizzle: Dead Simple WebSockets
 ==============================
 
+![tests](https://github.com/foxxyz/wizzle/workflows/tests/badge.svg?branch=master)
+
 Dead simple WebSocket communication for both Node.js and in-browser.
 
  * Abstraction on top of the wonderful [`ws` library](https://www.npmjs.com/package/ws)
