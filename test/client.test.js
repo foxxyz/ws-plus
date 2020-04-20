@@ -31,13 +31,13 @@ global.WebSocket = MockSocket
 const delay = (ms) => new Promise((res) => setTimeout(res, ms))
 
 describe('Client', () => {
-    it('should connect to a server', async () => {
+    it('connects', async () => {
         const client = new Client('ws://localhost:8888')
         await delay(60)
         expect(client.connected).toBe(true)
         client.close()
     })
-    it('should emit connect events', async() => {
+    it('emits connect events', async() => {
         const client = new Client('ws://localhost:8888')
         let flag = false
         client.on('connect', () => flag = true)
@@ -45,7 +45,7 @@ describe('Client', () => {
         expect(flag).toBe(true)
         client.close()
     })
-    it('should send messages', async() => {
+    it('sends messages', async() => {
         const client = new Client('ws://localhost:8888')
         await delay(60)
         const sendFunction = jest.spyOn(client.socket, 'send')
@@ -54,7 +54,7 @@ describe('Client', () => {
         expect(sendFunction).toHaveBeenCalledWith(message)
         client.close()
     })
-    it('should broadcast messages', async() => {
+    it('broadcasts messages', async() => {
         const client = new Client('ws://localhost:8888')
         await delay(60)
         const sendFunction = jest.spyOn(client.socket, 'send')
@@ -63,7 +63,7 @@ describe('Client', () => {
         expect(sendFunction).toHaveBeenCalledWith(message)
         client.close()
     })
-    it('should receive messages', async() => {
+    it('receives messages', async() => {
         const client = new Client('ws://localhost:8888')
         await delay(60)
         let flag = false
@@ -72,7 +72,7 @@ describe('Client', () => {
         expect(flag).toBe('testData')
         client.close()
     })
-    it('should allow listeners to be cleared', async() => {
+    it('allows clearing of listeners', async() => {
         const client = new Client('ws://localhost:8888')
         await delay(60)
         let flag = false
@@ -83,19 +83,19 @@ describe('Client', () => {
         expect(flag).toBe(false)
         client.close()
     })
-    it('should queue messages when not connected', async() => {
+    it('queues messages when not connected', async() => {
         const client = new Client('ws://localhost:8888', { autoConnect: false })
         client.send('test', 'test')
         expect(client.queue.length).toBe(1)
     })
-    it('should not exceed queue size when queuing messages', async() => {
+    it('prevents message queue overflow', async() => {
         const client = new Client('ws://localhost:8888', { maxQueueSize: 2, autoConnect: false })
         client.send('test', 'test')
         client.send('test', 'test2')
         client.send('test', 'test3')
         expect(client.queue.length).toBe(2)
     })
-    it('should send and clear queued messages on next connection', async() => {
+    it('clears queued messages on reconnect', async() => {
         const client = new Client('ws://localhost:8888')
         client.queue = [['testAction', 'testData']]
         const sendFunction = jest.spyOn(client.socket, 'send')
@@ -104,7 +104,7 @@ describe('Client', () => {
         expect(client.queue.length).toBe(0)
         client.close()
     })
-    it('should reconnect automatically', async() => {
+    it('reconnects automatically', async() => {
         const client = new Client('ws://localhost:8888')
         // Set 10ms reconnect interval
         client.reconnectInterval = .01
@@ -118,7 +118,7 @@ describe('Client', () => {
         expect(connectFunction).toHaveBeenCalled()
         client.close()
     })
-    it('should retry initial connect automatically', async() => {
+    it('retries initial connect automatically', async() => {
         const client = new Client('invalid-url')
         // Set 10ms reconnect interval
         client.reconnectInterval = .01
@@ -140,15 +140,15 @@ describe('Vue Plugin', () => {
     let MockFramework
     beforeEach(() => {
         MockFramework = class {}
-        MockFramework.util = { defineReactive: () => {}}
+        MockFramework.util = { defineReactive: () => {} }
     })
-    it('should be installable as a Vue plugin', async() => {
+    it('can be installed', async() => {
         const client = new Client('ws://localhost:8888', { autoConnect: false })
         client.install(MockFramework)
         const app = new MockFramework()
         expect(app.$ws).toBe(client)
     })
-    it('should allow override of global reference name', async() => {
+    it('allows overriding global reference name', async() => {
         const client = new Client('ws://localhost:8888', { autoConnect: false })
         client.install(MockFramework, { name: 'anotherSocket' })
         const app = new MockFramework()
