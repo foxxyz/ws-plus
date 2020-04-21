@@ -1,4 +1,4 @@
-Wizzle: Dead Simple WebSockets
+WS+: Dead Simple WebSockets
 ==============================
 
 ![tests](https://github.com/foxxyz/wizzle/workflows/tests/badge.svg?branch=master)
@@ -18,7 +18,7 @@ Installation
 ------------
 
 ```shell
-npm install wizzle
+npm install ws-plus
 ```
 
 Usage Examples
@@ -27,7 +27,7 @@ Usage Examples
 ### Server
 
 ```javascript
-const { Server } = require('wizzle')
+const { Server } = require('ws-plus')
 
 // Start server on port
 const server = new Server(8088)
@@ -44,7 +44,7 @@ server.on('ticket/request', (data, client) => {
 ### Client
 
 ```javascript
-import { Client } from 'wizzle'
+import { Client } from 'ws-plus'
 
 const client = new Client('ws://localhost:8082')
 
@@ -67,7 +67,7 @@ client.send('ticket/request', { someData: 'etc' })
 When creating your app:
 
 ```javascript
-import { Client } from 'wizzle'
+import { Client } from 'ws-plus'
 
 // Create your client
 const socketClient = new Client('ws://localhost:8082')
