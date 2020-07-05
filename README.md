@@ -1,7 +1,7 @@
 WS+: Dead Simple WebSockets
 ==============================
 
-![tests](https://github.com/foxxyz/wizzle/workflows/tests/badge.svg?branch=master)
+![tests](https://github.com/foxxyz/ws-plus/workflows/tests/badge.svg?branch=master)
 
 Dead simple WebSocket communication for both Node.js and in-browser.
 
@@ -30,7 +30,7 @@ Usage Examples
 const { Server } = require('ws-plus')
 
 // Start server on port
-const server = new Server(8088)
+const server = new Server({ port: 8088 })
 
 // React to an incoming message
 server.on('ticket/request', (data, client) => {
