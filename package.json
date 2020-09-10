@@ -8,8 +8,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "events": "^3.1.0",
-    "ws": "^7.3.0"
+    "events": "^3.2.0",
+    "ws": "^7.3.1"
   },
   "keywords": [
     "websockets",
@@ -33,12 +33,12 @@
     "url": "https://github.com/foxxyz/ws-plus"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.4",
-    "@babel/preset-env": "^7.10.4",
-    "babel-jest": "^26.1.0",
-    "eslint": "^7.4.0",
-    "eslint-plugin-jest": "^23.17.1",
-    "jest": "^26.1.0"
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.3.0",
+    "eslint": "^7.8.1",
+    "eslint-plugin-jest": "^24.0.0",
+    "jest": "^26.4.2"
   },
   "author": "Ivo Janssen <hello@ivo.la>",
   "contributors": [
