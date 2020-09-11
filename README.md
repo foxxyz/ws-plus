@@ -11,7 +11,7 @@ Dead simple WebSocket communication for both Node.js and in-browser.
  * Automatic connection support
  * Subscription support
  * ES7 / Async support
- * [Vue](https://vuejs.org/) plugin support
+ * [Vue](https://vuejs.org/) plugin support (Vue 3 supported!)
  * Fully tested
 
 Installation
@@ -66,6 +66,8 @@ client.send('ticket/request', { someData: 'etc' })
 
 When creating your app:
 
+##### Vue 2
+
 ```javascript
 import { Client } from 'ws-plus'
 
@@ -73,16 +75,52 @@ import { Client } from 'ws-plus'
 const socketClient = new Client('ws://localhost:8082')
 
 // Make socket available to all components
-app.use(socketClient, { name: 'ws' }) // Use Vue.use(socketClient, { name: 'ws' }) in Vue 2.x
+Vue.use(socketClient, { name: 'ws' })
 ```
 
-Inside a component:
+##### Vue 3
+
+```javascript
+import { createSocket } from 'ws-plus/vue'
+
+// Create your client
+const socketClient = createSocket('ws://localhost:8082')
+
+// Make socket available to all components
+app.use(socketClient)
+```
+
+#### Usage in a component
 
 ```javascript
 export default {
     ...
     click() {
         this.$ws.send('ticket/request', { data: ... })
+    }
+}
+```
+
+#### Using with the Vue 3 Component API
+
+The `listen` helper automatically calls `.on` and `.off` for specified action when the component is mounted and unmounted.
+
+```javascript
+import { inject } from 'vue'
+import { listen } from 'ws-plus/vue'
+
+export default {
+    setup() {
+        function receive({ ticket }) {
+            console.info(`Ticket received: ${ticket}`)
+        }
+
+        listen({
+            'ticket/receive': receive
+        })
+
+        const ws = inject('$ws')
+        ws.send('ticket/request', { data: ... })
     }
 }
 ```

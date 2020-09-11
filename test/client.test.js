@@ -135,23 +135,3 @@ describe('Client', () => {
         client.close()
     })
 })
-
-describe('Vue Plugin', () => {
-    let MockFramework
-    beforeEach(() => {
-        MockFramework = class {}
-        MockFramework.util = { defineReactive: () => {} }
-    })
-    it('can be installed', async() => {
-        const client = new Client('ws://localhost:8888', { autoConnect: false })
-        client.install(MockFramework)
-        const app = new MockFramework()
-        expect(app.$ws).toBe(client)
-    })
-    it('allows overriding global reference name', async() => {
-        const client = new Client('ws://localhost:8888', { autoConnect: false })
-        client.install(MockFramework, { name: 'anotherSocket' })
-        const app = new MockFramework()
-        expect(app.$anotherSocket).toBe(client)
-    })
-})

@@ -6,10 +6,17 @@ const EventEmitter = require('events')
 
 class Client extends EventEmitter {
     // Support Vue components
-    install(Vue, { name='ws' }={}) {
-        // Set a global reference
-        Vue.prototype[`$${name}`] = this
-        Vue.util.defineReactive(this, 'connected', this.connected)
+    install(app, { name='ws' }={}) {
+        // Vue 3
+        if (app.config) {
+            app.config.globalProperties[`$${name}`] = this
+            app.provide(`$${name}`, this)
+        }
+        // Vue 2
+        else {
+            app.prototype[`$${name}`] = this
+            app.util.defineReactive(this, 'connected', this.connected)
+        }
     }
     constructor(url, { reconnectInterval=10, maxQueueSize=100, autoConnect=true, verbosity=1 }={}) {
         super()

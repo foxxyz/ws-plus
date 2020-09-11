@@ -1,6 +1,6 @@
 {
   "name": "ws-plus",
-  "version": "1.0.3",
+  "version": "1.1.0-beta",
   "description": "Dead Simple Websockets",
   "main": "index.js",
   "module": "client.js",
@@ -10,6 +10,9 @@
   "dependencies": {
     "events": "^3.2.0",
     "ws": "^7.3.1"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0-rc.9"
   },
   "keywords": [
     "websockets",
@@ -38,7 +41,8 @@
     "babel-jest": "^26.3.0",
     "eslint": "^7.8.1",
     "eslint-plugin-jest": "^24.0.0",
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "vue": "^3.0.0-rc.10"
   },
   "author": "Ivo Janssen <hello@ivo.la>",
   "contributors": [
