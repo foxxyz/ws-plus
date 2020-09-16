@@ -14,6 +14,11 @@
   "peerDependencies": {
     "vue": "^3.0.0-rc.9"
   },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
+  },
   "keywords": [
     "websockets",
     "websocket",
