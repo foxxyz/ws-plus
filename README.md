@@ -14,6 +14,11 @@ Dead simple WebSocket communication for both Node.js and in-browser.
  * [Vue](https://vuejs.org/) plugin support (Vue 3 supported!)
  * Fully tested
 
+Requirements
+------------
+
+ * Node 10+
+
 Installation
 ------------
 
