@@ -41,12 +41,12 @@
     "url": "https://github.com/foxxyz/ws-plus"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/preset-env": "^7.11.5",
-    "babel-jest": "^26.3.0",
-    "eslint": "^7.8.1",
-    "eslint-plugin-jest": "^24.0.0",
-    "jest": "^26.4.2",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "babel-jest": "^26.6.1",
+    "eslint": "^7.12.1",
+    "eslint-plugin-jest": "^24.1.0",
+    "jest": "^26.6.1",
     "vue": "^3.0.0-rc.10"
   },
   "author": "Ivo Janssen <hello@ivo.la>",
