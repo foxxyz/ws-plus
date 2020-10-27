@@ -291,19 +291,36 @@ describe('Server Client', () => {
         // Received by the mock client
         await expect(received).resolves.toBe('["testAction","testMessage"]')
     })
-    it('handles errors during sending', async() => {
+    it('logs errors during sending', async() => {
+        const logger = jest.spyOn(console, 'error')
         const client = server.clients[0]
         client.connection.close()
-        const result = client.send('testAction', 'testMessage')
-        await expect(result).rejects.toMatch(/Asynchronous error/)
+        await client.send('testAction', 'testMessage')
+        expect(logger).toHaveBeenCalledWith('Client 0: Unable to deliver "testAction" message: WebSocket is not open: readyState 2 (CLOSING)')
     })
-    it('handles buffer overflows', async() => {
+    it('logs errors for buffer overflows', async() => {
+        const logger = jest.spyOn(console, 'error')
         const client = server.clients[0]
         client.maxSendBuffer = 50
         Object.defineProperty(client.connection, 'bufferedAmount', {
             get: function() { return 70 }
         })
-        const result = client.send('anotherAct', 'a really long message that exceeds the send buffer by a large margin')
+        await client.send('anotherAct', 'a really long message that exceeds the send buffer by a large margin')
+        expect(logger).toHaveBeenCalledWith('Client 0: Unable to deliver "anotherAct" message: Send buffer overflow')
+    })
+    it('throws errors on delivery', async() => {
+        const client = server.clients[0]
+        client.connection.close()
+        const result = client.deliver('testAction', 'testMessage')
+        await expect(result).rejects.toMatch(/WebSocket is not open/)
+    })
+    it('throws buffer overflows if awaiting delivery', async() => {
+        const client = server.clients[0]
+        client.maxSendBuffer = 50
+        Object.defineProperty(client.connection, 'bufferedAmount', {
+            get: function() { return 70 }
+        })
+        const result = client.deliver('anotherAct', 'a really long message that exceeds the send buffer by a large margin')
         await expect(result).rejects.toMatch(/Send buffer overflow/)
     })
     it('reports ping latencies', async() => {

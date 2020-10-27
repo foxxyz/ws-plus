@@ -86,6 +86,18 @@ class ServerClient {
         this.pingTimer = setTimeout(this.ping.bind(this), this.pingFrequency)
         this.server.emit('connect', this)
     }
+    // Attempt to deliver a message (rejects on fail)
+    deliver(action, data) {
+        // Skip if there's a lot of buffered data
+        if (this.connection.bufferedAmount > this.maxSendBuffer) return Promise.reject('Send buffer overflow')
+        return new Promise((res, rej) => {
+            this.connection.send(JSON.stringify([action, data]), (e) => {
+                // Error callback for async errors
+                if (e) return rej(e.message)
+                res()
+            })
+        })
+    }
     disconnect() {
         clearTimeout(this.pingTimer)
         this.server.remove(this)
@@ -138,17 +150,14 @@ class ServerClient {
         // Otherwise, broadcast
         else this.server.broadcast(decoded[0], decoded[1], decoded[2] ? undefined : this)
     }
-    // Send package to client
-    send(action, data) {
-        // Skip if there's a lot of buffered data
-        if (this.connection.bufferedAmount > this.maxSendBuffer) return Promise.reject(`Send buffer overflow for ${this.toString()}!`)
-        return new Promise((res, rej) => {
-            this.connection.send(JSON.stringify([action, data]), (e) => {
-                // Error callback for async errors
-                if (e) return rej(`Asynchronous error trying to send to ${this.toString()}: ${e}`)
-                res()
-            })
-        })
+    async send(action, data) {
+        try {
+            await this.deliver(action, data)
+        }
+        // Log delivery errors
+        catch(e) {
+            console.error(`${this.toString()}: Unable to deliver "${action}" message: ${e}`)
+        }
     }
     // Print out client info
     toString() {
