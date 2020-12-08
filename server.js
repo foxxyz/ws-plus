@@ -3,11 +3,11 @@ const { performance } = require('perf_hooks')
 const EventEmitter = require('events')
 
 class Server extends EventEmitter {
-    constructor({ host='127.0.0.1', port=8090, verbosity=1 }={}) {
+    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000 }={}) {
         super()
         this.clients = []
         this.idTracker = 0
-        this.clientOptions = { verbosity }
+        this.clientOptions = { verbosity, maxSendBuffer }
         this.verbosity = verbosity
         this.subscribers = {}
         this.server = new WebSocketServer({ host, port, perMessageDeflate: false })
@@ -64,7 +64,7 @@ class Server extends EventEmitter {
 }
 
 class ServerClient {
-    constructor(server, connection, id, { verbosity, maxSendBuffer }) {
+    constructor(server, connection, id, { verbosity, maxSendBuffer = 20000 }) {
         this.id = id
         this.connection = connection
         this.server = server
@@ -74,7 +74,7 @@ class ServerClient {
         this.lastPing = null
         this.verbosity = verbosity
         // Max allowed send buffer in bytes
-        this.maxSendBuffer = maxSendBuffer || 20000
+        this.maxSendBuffer = maxSendBuffer
         this.connect()
         this.connection.on('close', this.disconnect.bind(this))
         this.connection.on('message', this.receive.bind(this))

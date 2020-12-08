@@ -2,8 +2,12 @@ const MockClient = require('ws')
 const { Server } = require('../server')
 
 describe('Server Creation', () => {
+    let server
+    afterEach(async() => {
+        await server.close()
+    })
     it('should not fail', async() => {
-        const server = new Server({ port: 54321, verbosity: 0 })
+        server = new Server({ port: 54321, verbosity: 0 })
         await new Promise(res => server.server.on('listening', res))
         const mockClient = new MockClient('ws://localhost:54321')
         await new Promise((res, rej) => {
@@ -11,10 +15,9 @@ describe('Server Creation', () => {
             mockClient.onerror = rej
         })
         expect(server.clients.length).toBe(1)
-        await server.close()
     })
     it('delegates options to clients', async() => {
-        const server = new Server({ port: 54321, verbosity: -1 })
+        server = new Server({ port: 54321, verbosity: -1, maxSendBuffer: 4000 })
         await new Promise(res => server.server.on('listening', res))
         const mockClient = new MockClient('ws://localhost:54321')
         await new Promise((res, rej) => {
@@ -22,21 +25,19 @@ describe('Server Creation', () => {
             mockClient.onerror = rej
         })
         expect(server.clients[0].verbosity).toEqual(-1)
-        await server.close()
+        expect(server.clients[0].maxSendBuffer).toEqual(4000)
     })
     it('allows host overrides', async() => {
         const info = jest.spyOn(console, 'info')
-        const server = new Server({ host: '0.0.0.0' })
+        server = new Server({ host: '0.0.0.0' })
         await new Promise(res => server.server.on('listening', res))
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://0.0.0.0:8090. Awaiting clients...')
-        await server.close()
     })
     it('sets sane defaults', async() => {
         const info = jest.spyOn(console, 'info')
-        const server = new Server()
+        server = new Server()
         await new Promise(res => server.server.on('listening', res))
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://127.0.0.1:8090. Awaiting clients...')
-        await server.close()
     })
 })
 describe('Client Handling', () => {
