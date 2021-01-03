@@ -22,7 +22,7 @@ class Server extends EventEmitter {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))
     }
     async broadcast(action, data, skipClient) {
-        return Promise.all(this.clients.map(c => skipClient == c ? Promise.resolve() : c.send(action, data)))
+        return Promise.all(this.clients.map(c => skipClient === c ? Promise.resolve() : c.send(action, data)))
     }
     async broadcastSubscribers(action, data) {
         const subscribers = this.subscribers[action] || []
@@ -33,7 +33,7 @@ class Server extends EventEmitter {
         // Wait for all clients to be disconnected
         return new Promise(res => {
             const poller = setInterval(() => {
-                if (this.clients.length == 0) {
+                if (this.clients.length === 0) {
                     clearInterval(poller)
                     res()
                 }
@@ -42,9 +42,9 @@ class Server extends EventEmitter {
     }
     remove(client) {
         for(const key in this.subscribers) {
-            this.subscribers[key] = this.subscribers[key].filter(c => c.id != client.id)
+            this.subscribers[key] = this.subscribers[key].filter(c => c.id !== client.id)
         }
-        this.clients = this.clients.filter(c => c.id != client.id)
+        this.clients = this.clients.filter(c => c.id !== client.id)
     }
     subscribe(actions, client) {
         this.log.info(`Client ${client.id} subscribing to ${actions}`)
@@ -59,7 +59,7 @@ class Server extends EventEmitter {
         actions = [].concat(actions)
         for(const action of actions) {
             if (!this.subscribers[action]) continue
-            this.subscribers[action] = this.subscribers[action].filter(c => c.id != client.id)
+            this.subscribers[action] = this.subscribers[action].filter(c => c.id !== client.id)
         }
     }
 }
