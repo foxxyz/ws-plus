@@ -128,5 +128,27 @@ describe('Client', () => {
             await delay(100)
             client.close()
         })
+        it('does not log messages when silenced', async() => {
+            const infoLogger = jest.spyOn(console, 'info')
+            const warnLogger = jest.spyOn(console, 'warn')
+            const client = new Client('ws://localhost:8888', { verbosity: 0 })
+            await delay(60)
+            // Force close
+            client.socket.close()
+            expect(infoLogger).not.toHaveBeenCalled()
+            expect(warnLogger).not.toHaveBeenCalled()
+            client.close()
+        })
+        it('logs messages in verbose mode', async() => {
+            const infoLogger = jest.spyOn(console, 'info')
+            const warnLogger = jest.spyOn(console, 'warn')
+            const client = new Client('ws://localhost:8888', { verbosity: 1 })
+            await delay(60)
+            expect(infoLogger).toHaveBeenCalledWith('Socket connected at ws://localhost:8888')
+            // Force close
+            client.socket.close()
+            expect(warnLogger).toHaveBeenCalledWith('Socket closed. Retrying in 10 seconds...')
+            client.close()
+        })
     })
 })

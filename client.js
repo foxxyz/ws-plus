@@ -3,6 +3,7 @@ if (typeof(WebSocket) === 'undefined') {
     global.WebSocket = require('ws')
 }
 const EventEmitter = require('events')
+const { createLogger } = require('./util')
 
 class Client extends EventEmitter {
     // Support Vue components
@@ -25,7 +26,7 @@ class Client extends EventEmitter {
         this.url = url
         this.reconnectInterval = reconnectInterval
         this.maxQueueSize = maxQueueSize
-        this.verbosity = verbosity
+        this.log = createLogger({ verbosity })
         if (autoConnect) this.connect()
     }
     broadcast(action, data) {
@@ -40,11 +41,11 @@ class Client extends EventEmitter {
         // Regular closure, do not reconnect
         if (e.code === 1000) return
         // Otherwise, reconnect
-        console.warn(`Socket closed. Retrying in ${this.reconnectInterval} seconds...`)
+        this.log.warn(`Socket closed. Retrying in ${this.reconnectInterval} seconds...`)
         setTimeout(this.connect.bind(this), this.reconnectInterval * 1000)
     }
     error() {
-        console.warn(`Socket connection to ${this.url} refused`)
+        this.log.warn(`Socket connection to ${this.url} refused`)
     }
     connect() {
         this.socket = new WebSocket(this.url)
@@ -60,7 +61,7 @@ class Client extends EventEmitter {
     opened() {
         this.connected = true
         this.emit('connect', this)
-        if (this.verbosity > 0) console.info(`Socket connected at ${this.socket.url}`)
+        this.log.info(`Socket connected at ${this.socket.url}`)
         // Empty queue of messages waiting for connection
         while(this.queue.length) {
             this.send(...this.queue.shift())
@@ -73,9 +74,9 @@ class Client extends EventEmitter {
         // If not currently connect, queue for next connection
         if (!this.connected) {
             if (this.queue.length >= this.maxQueueSize) return
-            console.warn(`'${action}' message queued, waiting for next connection...`)
+            this.log.warn(`'${action}' message queued, waiting for next connection...`)
             this.queue.push(arguments)
-            if (this.queue.length === this.maxQueueSize) console.warn('Max queue size reached for socket, no further messages will be queued')
+            if (this.queue.length === this.maxQueueSize) this.log.warn('Max queue size reached for socket, no further messages will be queued')
             return
         }
         const message = [action, data]
