@@ -1,21 +1,22 @@
 const WebSocketServer = require('ws').Server
 const { performance } = require('perf_hooks')
 const EventEmitter = require('events')
+const { createLogger } = require('./util')
 
 class Server extends EventEmitter {
     constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000 }={}) {
         super()
         this.clients = []
         this.idTracker = 0
-        this.clientOptions = { verbosity, maxSendBuffer }
-        this.verbosity = verbosity
+        this.clientOptions = { maxSendBuffer }
+        this.log = createLogger({ verbosity })
         this.subscribers = {}
         this.server = new WebSocketServer({ host, port, perMessageDeflate: false })
         this.server.on('connection', this.add.bind(this))
         // Allow clients to subscribe to specific events
         this.on('subscribe', this.subscribe.bind(this))
         this.on('unsubscribe', this.unsubscribe.bind(this))
-        if (this.verbosity > 0) console.info(`Serving websocket server at ws://${this.server.options.host}:${this.server.options.port}. Awaiting clients...`)
+        this.log.info(`Serving websocket server at ws://${this.server.options.host}:${this.server.options.port}. Awaiting clients...`)
     }
     add(connection) {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))
@@ -46,7 +47,7 @@ class Server extends EventEmitter {
         this.clients = this.clients.filter(c => c.id != client.id)
     }
     subscribe(actions, client) {
-        if (this.verbosity > 0) console.info(`Client ${client.id} subscribing to ${actions}`)
+        this.log.info(`Client ${client.id} subscribing to ${actions}`)
         actions = [].concat(actions)
         for(const action of actions) {
             if (!this.subscribers[action]) this.subscribers[action] = []
@@ -54,7 +55,7 @@ class Server extends EventEmitter {
         }
     }
     unsubscribe(actions, client) {
-        if (this.verbosity > 0) console.info(`Client ${client.id} unsubscribing from ${actions}`)
+        this.log.info(`Client ${client.id} unsubscribing from ${actions}`)
         actions = [].concat(actions)
         for(const action of actions) {
             if (!this.subscribers[action]) continue
@@ -64,7 +65,7 @@ class Server extends EventEmitter {
 }
 
 class ServerClient {
-    constructor(server, connection, id, { verbosity, maxSendBuffer = 20000 }) {
+    constructor(server, connection, id, { maxSendBuffer = 20000 }) {
         this.id = id
         this.connection = connection
         this.server = server
@@ -72,7 +73,7 @@ class ServerClient {
         this.pingFrequency = 75000 // 75 second pings
         this.pingTimer = null
         this.lastPing = null
-        this.verbosity = verbosity
+        this.log = this.server.log
         // Max allowed send buffer in bytes
         this.maxSendBuffer = maxSendBuffer
         this.connect()
@@ -82,7 +83,7 @@ class ServerClient {
         this.connection.on('pong', this.pong.bind(this))
     }
     connect() {
-        if (this.verbosity > 0) console.info(`Connected ${this.toString()} (${this.server.clients.length + 1} total)`)
+        this.log.info(`Connected ${this.toString()} (${this.server.clients.length + 1} total)`)
         this.pingTimer = setTimeout(this.ping.bind(this), this.pingFrequency)
         this.server.emit('connect', this)
     }
@@ -101,10 +102,10 @@ class ServerClient {
     disconnect() {
         clearTimeout(this.pingTimer)
         this.server.remove(this)
-        if (this.verbosity > 0) console.info(`${this.toString()} disconnected. (${this.server.clients.length} remaining)`)
+        this.log.info(`${this.toString()} disconnected. (${this.server.clients.length} remaining)`)
     }
     error(err) {
-        console.error(err)
+        this.log.error(err)
         this.disconnect()
     }
     async ping() {
@@ -125,14 +126,14 @@ class ServerClient {
         }
         this.pings++
         this.lastPing = performance.now()
-        if (this.verbosity > 0) console.log('Pinging client ' + this.id)
+        this.log.log('Pinging client ' + this.id)
         clearTimeout(this.pingTimer)
         this.pingTimer = setTimeout(this.ping.bind(this), this.pingFrequency)
     }
     pong() {
         if (this.lastPing) {
             this.latency = performance.now() - this.lastPing
-            if (this.verbosity > 0) console.log('Client ' + this.id + ' latency: ' + this.latency.toFixed(3) + 'ms')
+            this.log.log('Client ' + this.id + ' latency: ' + this.latency.toFixed(3) + 'ms')
         }
         this.pings = 0
     }
@@ -140,9 +141,9 @@ class ServerClient {
         var decoded = ''
         try {
             decoded = JSON.parse(message)
-            if (this.verbosity > 1) console.debug(`Received '${decoded[0]}':`, decoded[1])
+            this.log.debug(`Received '${decoded[0]}':`, decoded[1])
         } catch (e) {
-            console.error(`Unparsable message received: ${message}`)
+            this.log.error(`Unparsable message received: ${message}`)
             return
         }
         // Execute action if registered
@@ -156,7 +157,7 @@ class ServerClient {
         }
         // Log delivery errors
         catch(e) {
-            console.error(`${this.toString()}: Unable to deliver "${action}" message: ${e}`)
+            this.log.error(`${this.toString()}: Unable to deliver "${action}" message: ${e}`)
         }
     }
     // Print out client info
