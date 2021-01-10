@@ -44,10 +44,17 @@ describe('Client', () => {
             expect(client.connected).toBe(true)
         })
         it('emits connect events', async() => {
-            let flag = false
-            client.on('connect', () => flag = true)
+            const func = jest.fn()
+            client.on('connect', func)
             await delay(60)
-            expect(flag).toBe(true)
+            expect(func).toHaveBeenCalled()
+        })
+        it('emits close events on normal close', async() => {
+            const func = jest.fn()
+            client.on('close', func)
+            await delay(60)
+            client.close()
+            expect(func).toHaveBeenCalled()
         })
         it('sends messages', async() => {
             await delay(60)
@@ -97,6 +104,13 @@ describe('Client', () => {
             // Wait at least reconnect interval
             await delay(100)
             expect(connectFunction).toHaveBeenCalled()
+        })
+        it('emits close events during abnormal close', async() => {
+            const func = jest.fn()
+            client.on('close', func)
+            await delay(60)
+            client.socket.close()
+            expect(func).toHaveBeenCalled()
         })
     })
     describe('Edge Cases', () => {

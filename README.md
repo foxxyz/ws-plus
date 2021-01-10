@@ -229,7 +229,11 @@ Options:
 
 #### Event: `'connect'`
 
-Special event emitted when connection to a server succeeds.
+Emitted when connection to a server succeeds.
+
+#### Event: `'close'`
+
+Emitted when the client closes, either normally or abnormally (E.G. during a reconnect).
 
 #### `client.broadcast(action : String, data : Any)`
 

@@ -38,6 +38,7 @@ class Client extends EventEmitter {
     }
     closed(e) {
         this.connected = false
+        this.emit('close')
         // Regular closure, do not reconnect
         if (e.code === 1000) return
         // Otherwise, reconnect
