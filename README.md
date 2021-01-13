@@ -275,7 +275,7 @@ Send message to server.
 
 ### Class `Server`
 
-Allows clients to connect to it. Only used in back-end environments.
+Listens and waits for clients. Can only be used in back-end environments, not in-browser.
 
 #### `new Server(options? = { host?, port?, maxSendBuffer?, verbosity? })`
 

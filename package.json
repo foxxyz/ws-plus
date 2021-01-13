@@ -26,7 +26,8 @@
     "vue"
   ],
   "browser": {
-    "ws": false
+    "ws": false,
+    "./server.js": false
   },
   "jest": {
     "collectCoverage": true,
