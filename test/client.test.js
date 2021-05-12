@@ -126,6 +126,24 @@ describe('Client', () => {
             client.send('test', 'test3')
             expect(client.queue.length).toBe(2)
         })
+        it('sends messages as objects', async() => {
+            const client = new Client('ws://localhost:8888', { rootObject: true })
+            const receiver = new Promise((res, rej) => {
+                client.receive = ({ data }) => {
+                    return Array.isArray(JSON.parse(data)) ? rej() : res(true)
+                }
+            })
+            client.send('test', 'test')
+            expect(receiver).resolves.toBe(true)
+        })
+        it('receives root-object messages', async() => {
+            const client = new Client('ws://localhost:8888')
+            const listener = new Promise((res, rej) => {
+                client.on('test', data => data === 'test' ? res(true) : rej())
+            })
+            client.receive({ data: '{"action":"test","data":"test"}' })
+            expect(listener).resolves.toBe(true)
+        })
         it('retries initial connect automatically', async() => {
             const client = new Client('invalid-url')
             // Set 10ms reconnect interval

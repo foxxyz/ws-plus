@@ -4,11 +4,11 @@ const EventEmitter = require('events')
 const { createLogger } = require('./util')
 
 class Server extends EventEmitter {
-    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000 }={}) {
+    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000, rootObject=false }={}) {
         super()
         this.clients = []
         this.idTracker = 0
-        this.clientOptions = { maxSendBuffer }
+        this.clientOptions = { maxSendBuffer, rootObject }
         this.log = createLogger({ verbosity })
         this.subscribers = {}
         this.server = new WebSocketServer({ host, port, perMessageDeflate: false })
@@ -65,7 +65,7 @@ class Server extends EventEmitter {
 }
 
 class ServerClient {
-    constructor(server, connection, id, { maxSendBuffer = 20000 }) {
+    constructor(server, connection, id, { maxSendBuffer = 20000, rootObject = false }) {
         this.id = id
         this.connection = connection
         this.server = server
@@ -76,6 +76,7 @@ class ServerClient {
         this.log = this.server.log
         // Max allowed send buffer in bytes
         this.maxSendBuffer = maxSendBuffer
+        this.rootObject = rootObject
         this.connect()
         this.connection.on('close', this.disconnect.bind(this))
         this.connection.on('message', this.receive.bind(this))
@@ -92,7 +93,8 @@ class ServerClient {
         // Skip if there's a lot of buffered data
         if (this.connection.bufferedAmount > this.maxSendBuffer) return Promise.reject('Send buffer overflow')
         return new Promise((res, rej) => {
-            this.connection.send(JSON.stringify([action, data]), (e) => {
+            const message = this.rootObject ? { action, data } : [action, data]
+            this.connection.send(JSON.stringify(message), (e) => {
                 // Error callback for async errors
                 if (e) return rej(e.message)
                 res()
@@ -141,6 +143,7 @@ class ServerClient {
         var decoded = ''
         try {
             decoded = JSON.parse(message)
+            decoded = Array.isArray(decoded) ? decoded : [decoded.action, decoded.data]
             this.log.debug(`Received '${decoded[0]}':`, decoded[1])
         } catch (e) {
             this.log.error(`Unparsable message received: ${message}`)

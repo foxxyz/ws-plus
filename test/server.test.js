@@ -324,6 +324,25 @@ describe('Server Client', () => {
             await new Promise(res => setTimeout(res, 50))
             expect(errorFunc).toHaveBeenCalledWith('No ping response from client 0')
         })
+        it('receives messages as objects', async() => {
+            const listener = new Promise((res, rej) => {
+                server.on('test', data => data === 'test' ? res(true) : rej())
+            })
+            mockClient.send('{"action":"test","data":"test"}')
+            await expect(listener).resolves.toBe(true)
+        })
+        it('sends messages as objects', async() => {
+            const client = server.clients[0]
+            client.rootObject = true
+            const received = new Promise((res) => {
+                mockClient.on('message', res)
+            })
+            const result = client.send('testAction', 'testMessage')
+            // Sent by our client
+            await expect(result).resolves.toBe(undefined)
+            // Received by the mock client
+            await expect(received).resolves.toBe('{"action":"testAction","data":"testMessage"}')
+        })
     })
     describe('Logging', () => {
         let mockClient, server, debugLog, errorLog
