@@ -71,7 +71,7 @@ class Client extends EventEmitter {
     }
     receive({ data }) {
         let decoded = JSON.parse(data)
-        decoded = Array.isArray(decoded) ? decoded : [decoded.action, decoded.data]
+        decoded = this.rootObject ? [decoded.action, decoded.data] : decoded
         this.emit(...decoded)
     }
     send(action, data, bounce) {

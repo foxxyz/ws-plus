@@ -325,6 +325,7 @@ describe('Server Client', () => {
             expect(errorFunc).toHaveBeenCalledWith('No ping response from client 0')
         })
         it('receives messages as objects', async() => {
+            server.clients.forEach(c => c.rootObject = true)
             const listener = new Promise((res, rej) => {
                 server.on('test', data => data === 'test' ? res(true) : rej())
             })

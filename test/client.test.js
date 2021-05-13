@@ -137,7 +137,7 @@ describe('Client', () => {
             expect(receiver).resolves.toBe(true)
         })
         it('receives root-object messages', async() => {
-            const client = new Client('ws://localhost:8888')
+            const client = new Client('ws://localhost:8888', { rootObject: true })
             const listener = new Promise((res, rej) => {
                 client.on('test', data => data === 'test' ? res(true) : rej())
             })

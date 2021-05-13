@@ -143,7 +143,7 @@ class ServerClient {
         var decoded = ''
         try {
             decoded = JSON.parse(message)
-            decoded = Array.isArray(decoded) ? decoded : [decoded.action, decoded.data]
+            decoded = this.rootObject ? [decoded.action, decoded.data] : decoded
             this.log.debug(`Received '${decoded[0]}':`, decoded[1])
         } catch (e) {
             this.log.error(`Unparsable message received: ${message}`)
