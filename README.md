@@ -165,7 +165,7 @@ export default {
 
 #### Using with the Vue 3 Component API
 
-The [`listen` helper](#listenactions--object-options---name-) automatically calls `.on` and `.off` for specified action when the component is mounted and unmounted.
+The [`listen` helper](#listenactions--object-options---name-) automatically calls `.on` and `.off` for specified actions when the component is mounted and unmounted.
 
 ```javascript
 import { inject } from 'vue'
