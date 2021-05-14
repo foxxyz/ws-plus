@@ -19,13 +19,14 @@ class Client extends EventEmitter {
             app.util.defineReactive(this, 'connected', this.connected)
         }
     }
-    constructor(url, { reconnectInterval=10, maxQueueSize=100, autoConnect=true, verbosity=1 }={}) {
+    constructor(url, { reconnectInterval=10, maxQueueSize=100, autoConnect=true, verbosity=1, rootObject=false }={}) {
         super()
         this.connected = false
         this.queue = []
         this.url = url
         this.reconnectInterval = reconnectInterval
         this.maxQueueSize = maxQueueSize
+        this.rootObject = rootObject
         this.log = createLogger({ verbosity })
         if (autoConnect) this.connect()
     }
@@ -69,7 +70,9 @@ class Client extends EventEmitter {
         }
     }
     receive({ data }) {
-        this.emit(...JSON.parse(data))
+        let decoded = JSON.parse(data)
+        decoded = this.rootObject ? [decoded.action, decoded.data] : decoded
+        this.emit(...decoded)
     }
     send(action, data, bounce) {
         // If not currently connect, queue for next connection
@@ -80,7 +83,7 @@ class Client extends EventEmitter {
             if (this.queue.length === this.maxQueueSize) this.log.warn('Max queue size reached for socket, no further messages will be queued')
             return
         }
-        const message = [action, data]
+        const message = this.rootObject ? { action, data } : [action, data]
         if (bounce) message.push(bounce)
         this.socket.send(JSON.stringify(message))
     }

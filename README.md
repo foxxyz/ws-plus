@@ -214,7 +214,7 @@ Clients connect to other WebSocket servers and can be created either in a back-e
 
 All incoming messages are emitted as action events and can be subscribed to via [`client.on()`](#clientoneventname--string-listener--functiondata-).
 
-#### `new Client(url : String, options? = { reconnectInterval?, maxQueueSize?, autoConnect?, verbosity? })`
+#### `new Client(url : String, options? = { reconnectInterval?, maxQueueSize?, autoConnect?, rootObject?, verbosity? })`
 
 Create a new WebSocket client.
 
@@ -225,6 +225,7 @@ Options:
  - `autoConnect`: Automatically connect during construction. Set this to false if you prefer to call `.connect()` manually. (default: `true`)
  - `maxQueueSize`: Maximum amount of messages to queue when not connected (for example, if still awaiting connection) (default: `100`)
  - `reconnectInterval`: How many seconds to wait until attempting a reconnect when disconnected (default: `10`)
+ - `rootObject`: Serialize messages as JSON objects instead of JSON arrays. Useful when dealing with servers that don't support top-level arrays. (default: `false`)
  - `verbosity`: Show more/less log messages (default: `1`). Set to `0` to silence.
 
 #### Event: `'connect'`
@@ -277,7 +278,7 @@ Send message to server.
 
 Listens and waits for clients. Can only be used in back-end environments, not in-browser.
 
-#### `new Server(options? = { host?, port?, maxSendBuffer?, verbosity? })`
+#### `new Server(options? = { host?, port?, maxSendBuffer?, rootObject?, verbosity? })`
 
 Create a new server.
 
@@ -286,6 +287,7 @@ Options:
  - `host`: Host to listen on (default: `127.0.0.1`). Use `0.0.0.0` to accept any incoming connection.
  - `port`: Port to listen on (default: `8090`)
  - `maxSendBuffer`: Size of the send buffer in bytes. This governs how much the server can queue to an unacknowledging recipient (for example, during slow connections) before giving up. Messages that exceed the send buffer are dropped. (default: `20000`)
+ - `rootObject`: Serialize messages as JSON objects instead of JSON arrays. Useful when handling clients that don't support top-level arrays. (default: `false`)
  - `verbosity`: Show more/less log messages (default `1`). Use `0` to silence.
 
 #### Event: `'connect'`
@@ -324,7 +326,7 @@ Listen for specific message actions from clients or events.
 
 ### Class `ServerClient`
 
-A representation of each client connected to the server. These instances are automatically created by the server and should not be instantiated directly. However, `ServerClient` instances may be interacted via event listeners on `Server`.
+A representation of each client connected to the server. These instances are automatically created by the server and should not be instantiated directly. However, `ServerClient` instances may be interacted with via event listeners on `Server`.
 
 #### `serverClient.deliver(action : String, data : Any) : Promise`
 
