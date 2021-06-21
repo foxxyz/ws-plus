@@ -106,6 +106,8 @@ describe('Client', () => {
             expect(connectFunction).toHaveBeenCalled()
         })
         it('emits close events during abnormal close', async() => {
+            // Set 10ms reconnect interval to prevent hanging
+            client.reconnectInterval = .01
             const func = jest.fn()
             client.on('close', func)
             await delay(60)
@@ -164,6 +166,8 @@ describe('Client', () => {
             const infoLogger = jest.spyOn(console, 'info')
             const warnLogger = jest.spyOn(console, 'warn')
             const client = new Client('ws://localhost:8888', { verbosity: 0 })
+            // Set 10ms reconnect interval to prevent hanging
+            client.reconnectInterval = .01
             await delay(60)
             // Force close
             client.socket.close()
@@ -175,11 +179,13 @@ describe('Client', () => {
             const infoLogger = jest.spyOn(console, 'info')
             const warnLogger = jest.spyOn(console, 'warn')
             const client = new Client('ws://localhost:8888', { verbosity: 1 })
+            // Set 10ms reconnect interval to prevent hanging
+            client.reconnectInterval = .01
             await delay(60)
             expect(infoLogger).toHaveBeenCalledWith('Socket connected at ws://localhost:8888')
             // Force close
             client.socket.close()
-            expect(warnLogger).toHaveBeenCalledWith('Socket closed. Retrying in 10 seconds...')
+            expect(warnLogger).toHaveBeenCalledWith('Socket closed. Retrying in 0.01 seconds...')
             client.close()
         })
     })

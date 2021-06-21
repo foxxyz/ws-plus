@@ -47,38 +47,38 @@ describe('Vue 3 Plugin', () => {
         onMounted.mockImplementation(fn => fn())
     })
     it('can be installed', () => {
-        const client = createSocket('ws://localhost:8888')
+        const client = createSocket('ws://localhost:8888', { autoConnect: false })
         const app = new MockApp()
         app.use(client)
         expect(app.config.globalProperties.$ws).toBe(client)
     })
     it('allows overriding global reference name', () => {
-        const client = createSocket('ws://localhost:8888')
+        const client = createSocket('ws://localhost:8888', { autoConnect: false })
         const app = new MockApp()
         app.use(client, { name: 'anotherSocket' })
         expect(app.config.globalProperties.$anotherSocket).toBe(client)
     })
-    it('allows easy listening in components', () => {
-        const client = createSocket('ws://localhost:8888')
+    it('allows easy listening in components', async () => {
+        const client = createSocket('ws://localhost:8888', { autoConnect: false })
         const app = new MockApp()
         app.use(client)
 
         const testAction = jest.fn()
         listen({ testAction })
 
-        client.socket.onmessage({ data: '["testAction", "testData"]' })
+        client.receive({ data: '["testAction", "testData"]' })
 
         expect(testAction).toHaveBeenCalledWith('testData')
     })
     it('allows easy listening on specific sockets', () => {
-        const client = createSocket('ws://localhost:8888')
+        const client = createSocket('ws://localhost:8888', { autoConnect: false })
         const app = new MockApp()
         app.use(client, { name: 'secondary' })
 
         const action2 = jest.fn()
         listen({ action2 }, { name: 'secondary' })
 
-        client.socket.onmessage({ data: '["action2", "data2"]' })
+        client.receive({ data: '["action2", "data2"]' })
 
         expect(action2).toHaveBeenCalledWith('data2')
     })
