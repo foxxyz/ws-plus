@@ -14,8 +14,8 @@ class Server extends EventEmitter {
         this.server = new WebSocketServer({
             ...wssOpts,
             host,
-            // ignore port if pre-created HTTP/S server to use is specified,
-            // otherwise WebSocketServer will initialize only from port
+            // ignore port if pre-created HTTP/S server to use is specified;
+            // WebSocketServer cannot initialize from a port *and* server context
             port: wssOpts.server ? null : port,
             perMessageDeflate: false
         })
