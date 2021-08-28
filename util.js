@@ -13,6 +13,7 @@ function createLogger({ verbosity }) {
     }
     const logger = {}
     for(const severity of ['debug', 'info', 'log', 'warn', 'error']) {
+        // eslint-disable-next-line no-console
         logger[severity] = log.bind(null, console[severity], THRESHOLDS[severity])
     }
     return logger
