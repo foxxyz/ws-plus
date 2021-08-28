@@ -5,6 +5,7 @@
   "main": "index.js",
   "module": "client.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "jest"
   },
   "dependencies": {
