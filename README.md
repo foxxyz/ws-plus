@@ -289,7 +289,7 @@ Options:
  - `maxSendBuffer`: Size of the send buffer in bytes. This governs how much the server can queue to an unacknowledging recipient (for example, during slow connections) before giving up. Messages that exceed the send buffer are dropped. (default: `20000`)
  - `rootObject`: Serialize messages as JSON objects instead of JSON arrays. Useful when handling clients that don't support top-level arrays. (default: `false`)
  - `verbosity`: Show more/less log messages (default `1`). Use `0` to silence.
- - `wssOpts`: Pass all other arguments to the base `WebSocketServer` constructor.
+ - Any other option allowed in [`ws.WebSocketServer`](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketserveroptions-callback)
 
 #### Event: `'connect'`
 
