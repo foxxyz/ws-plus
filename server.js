@@ -20,10 +20,14 @@ class Server extends EventEmitter {
             perMessageDeflate: false
         })
         this.server.on('connection', this.add.bind(this))
+        this.server.on('listening', () => {
+            const { port: wssPort, family, address } = this.server.address()
+            const addrStr = family === 'IPv6' ? `[${address}]` : address
+            this.log.info(`Serving websocket server at ws://${addrStr}:${wssPort}. Awaiting clients...`)
+        })
         // Allow clients to subscribe to specific events
         this.on('subscribe', this.subscribe.bind(this))
         this.on('unsubscribe', this.unsubscribe.bind(this))
-        this.log.info(`Serving websocket server at ws://${this.server.options.host}:${this.server.options.port}. Awaiting clients...`)
     }
     add(connection) {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))

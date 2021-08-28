@@ -45,6 +45,13 @@ describe('Server Creation', () => {
         expect(server.server._server).toBe(httpServer)
         expect(server.server.options.port).toBe(null)
     })
+    it('prints square brackets around ipv6 addresses when listening', async() => {
+        const info = jest.spyOn(console, 'info')
+        const httpServer = http.createServer()
+        server = new Server({ server: httpServer })
+        await new Promise(res => httpServer.listen({ port: 54322 }, res))
+        expect(info).toHaveBeenCalledWith('Serving websocket server at ws://[::]:54322. Awaiting clients...')
+    })
 })
 describe('Client Handling', () => {
     let server
