@@ -4,19 +4,30 @@ const EventEmitter = require('events')
 const { createLogger } = require('./util')
 
 class Server extends EventEmitter {
-    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000, rootObject=false }={}) {
+    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000, rootObject=false, ...wssOpts }={}) {
         super()
         this.clients = []
         this.idTracker = 0
         this.clientOptions = { maxSendBuffer, rootObject }
         this.log = createLogger({ verbosity })
         this.subscribers = {}
-        this.server = new WebSocketServer({ host, port, perMessageDeflate: false })
+        this.server = new WebSocketServer({
+            ...wssOpts,
+            host,
+            // ignore port if pre-created HTTP/S server to use is specified;
+            // WebSocketServer cannot initialize from a port *and* server context
+            port: wssOpts.server ? null : port,
+            perMessageDeflate: false
+        })
         this.server.on('connection', this.add.bind(this))
+        this.server.on('listening', () => {
+            const { port: wssPort, family, address } = this.server.address()
+            const addrStr = family === 'IPv6' ? `[${address}]` : address
+            this.log.info(`Serving websocket server at ws://${addrStr}:${wssPort}. Awaiting clients...`)
+        })
         // Allow clients to subscribe to specific events
         this.on('subscribe', this.subscribe.bind(this))
         this.on('unsubscribe', this.unsubscribe.bind(this))
-        this.log.info(`Serving websocket server at ws://${this.server.options.host}:${this.server.options.port}. Awaiting clients...`)
     }
     add(connection) {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))

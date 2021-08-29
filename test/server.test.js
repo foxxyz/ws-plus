@@ -1,3 +1,4 @@
+const http = require('http')
 const MockClient = require('ws')
 const { Server } = require('../server')
 
@@ -37,6 +38,20 @@ describe('Server Creation', () => {
         server = new Server()
         await new Promise(res => server.server.on('listening', res))
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://127.0.0.1:8090. Awaiting clients...')
+    })
+    it('ignores port when existing http server specified', () => {
+        const httpServer = http.createServer()
+        server = new Server({ port: 54321, server: httpServer })
+        expect(server.server._server).toBe(httpServer)
+        expect(server.server.options.port).toBe(null)
+    })
+    it('prints square brackets around ipv6 addresses when listening', async() => {
+        const info = jest.spyOn(console, 'info')
+        const httpServer = http.createServer()
+        server = new Server({ server: httpServer })
+        await new Promise(res => httpServer.listen({ port: 54322 }, res))
+        expect(info).toHaveBeenCalledWith('Serving websocket server at ws://[::]:54322. Awaiting clients...')
+        return new Promise(res => httpServer.close(res))
     })
 })
 describe('Client Handling', () => {
