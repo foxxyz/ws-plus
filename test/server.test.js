@@ -51,6 +51,7 @@ describe('Server Creation', () => {
         server = new Server({ server: httpServer })
         await new Promise(res => httpServer.listen({ port: 54322 }, res))
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://[::]:54322. Awaiting clients...')
+        return new Promise(res => httpServer.close(res))
     })
 })
 describe('Client Handling', () => {
