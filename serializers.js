@@ -5,7 +5,7 @@ class JSONArraySerializer {
         return JSON.stringify(message)
     }
     static decode(buffer) {
-        return JSON.parse(buffer)
+        return JSON.parse(buffer.toString())
     }
 }
 
@@ -16,7 +16,7 @@ class JSONObjSerializer {
         return JSON.stringify(message)
     }
     static decode(buffer) {
-        const { action, data, bounce } = JSON.parse(buffer)
+        const { action, data, bounce } = JSON.parse(buffer.toString())
         return [action, data, bounce]
     }
 }

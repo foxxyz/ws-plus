@@ -42,6 +42,10 @@ class Server extends EventEmitter {
         return Promise.all(subscribers.map(c => c.send(action, data)))
     }
     async close() {
+        // Forcefully existing clients
+        for (const client of this.server.clients) {
+            client.terminate()
+        }
         await new Promise(res => this.server.close(res))
         // Wait for all clients to be disconnected
         return new Promise(res => {

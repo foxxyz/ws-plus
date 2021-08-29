@@ -114,7 +114,7 @@ describe('Client Handling', () => {
             })
             receivers.push(new Promise(res => {
                 mockClient.on('message', data => {
-                    res(data === JSON.stringify(['testMessage', { testKey: 239 }]))
+                    res(data.toString() === JSON.stringify(['testMessage', { testKey: 239 }]))
                 })
             }))
             clients.push(mockClient)
@@ -151,7 +151,7 @@ describe('Client Handling', () => {
             receivers.push(new Promise((res, rej) => {
                 let timeout = null
                 mockClient.on('message', (data) => {
-                    res(data === JSON.stringify(['specialMessage', { testKey: 239 }]))
+                    res(data.toString() === JSON.stringify(['specialMessage', { testKey: 239 }]))
                     clearTimeout(timeout)
                 })
                 // Auto-timeout if no message received
@@ -240,7 +240,7 @@ describe('Server Client', () => {
         })
         it('receives messages', async() => {
             const received = new Promise((res) => {
-                server.clients[0].connection.on('message', res)
+                server.clients[0].connection.on('message', msg => res(msg.toString()))
             })
             mockClient.send('["test", []]')
             await expect(received).resolves.toBe('["test", []]')
@@ -264,7 +264,7 @@ describe('Server Client', () => {
             })
             const otherReceived = new Promise((res, rej) => {
                 otherMockClient.on('message', (data) => {
-                    if (data === JSON.stringify(TEST_MESSAGE)) res()
+                    if (data.toString() === JSON.stringify(TEST_MESSAGE)) res()
                     else rej()
                 })
             })
@@ -290,10 +290,10 @@ describe('Server Client', () => {
                 otherMockClient.onerror = rej
             })
             const otherReceived = new Promise(res => {
-                otherMockClient.on('message', res)
+                mockClient.on('message', data => res(data.toString()))
             })
             const received = new Promise(res => {
-                mockClient.on('message', res)
+                mockClient.on('message', data => res(data.toString()))
             })
             mockClient.send(JSON.stringify(bounceMessage))
             await expect(otherReceived).resolves.toBe(JSON.stringify(TEST_MESSAGE))
@@ -301,8 +301,8 @@ describe('Server Client', () => {
         })
         it('sends messages', async() => {
             const client = server.clients[0]
-            const received = new Promise((res) => {
-                mockClient.on('message', res)
+            const received = new Promise(res => {
+                mockClient.on('message', data => res(data.toString()))
             })
             const result = client.send('testAction', 'testMessage')
             // Sent by our client
