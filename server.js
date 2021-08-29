@@ -2,13 +2,15 @@ const WebSocketServer = require('ws').Server
 const { performance } = require('perf_hooks')
 const EventEmitter = require('events')
 const { createLogger } = require('./util')
+const { JSONArraySerializer } = require('./serializers')
 
 class Server extends EventEmitter {
-    constructor({ host='127.0.0.1', port=8090, verbosity=1, maxSendBuffer=20000, rootObject=false, ...wssOpts }={}) {
+    constructor({ host='127.0.0.1', port=8090, verbosity=1, serializer=JSONArraySerializer, maxSendBuffer=20000, ...wssOpts }={}) {
         super()
         this.clients = []
         this.idTracker = 0
-        this.clientOptions = { maxSendBuffer, rootObject }
+        this.serializer = serializer
+        this.clientOptions = { maxSendBuffer }
         this.log = createLogger({ verbosity })
         this.subscribers = {}
         this.server = new WebSocketServer({
@@ -76,7 +78,7 @@ class Server extends EventEmitter {
 }
 
 class ServerClient {
-    constructor(server, connection, id, { maxSendBuffer = 20000, rootObject = false }) {
+    constructor(server, connection, id, { maxSendBuffer = 20000 }) {
         this.id = id
         this.connection = connection
         this.server = server
@@ -87,7 +89,8 @@ class ServerClient {
         this.log = this.server.log
         // Max allowed send buffer in bytes
         this.maxSendBuffer = maxSendBuffer
-        this.rootObject = rootObject
+        this._serialize = server.serializer.encode
+        this._deserialize = server.serializer.decode
         this.connect()
         this.connection.on('close', this.disconnect.bind(this))
         this.connection.on('message', this.receive.bind(this))
@@ -104,8 +107,7 @@ class ServerClient {
         // Skip if there's a lot of buffered data
         if (this.connection.bufferedAmount > this.maxSendBuffer) return Promise.reject('Send buffer overflow')
         return new Promise((res, rej) => {
-            const message = this.rootObject ? { action, data } : [action, data]
-            this.connection.send(JSON.stringify(message), (e) => {
+            this.connection.send(this._serialize(action, data), (e) => {
                 // Error callback for async errors
                 if (e) return rej(e.message)
                 res()
@@ -153,8 +155,7 @@ class ServerClient {
     receive(message) {
         var decoded = ''
         try {
-            decoded = JSON.parse(message)
-            decoded = this.rootObject ? [decoded.action, decoded.data] : decoded
+            decoded = this._deserialize(message)
             this.log.debug(`Received '${decoded[0]}':`, decoded[1])
         } catch (e) {
             this.log.error(`Unparsable message received: ${message}`)

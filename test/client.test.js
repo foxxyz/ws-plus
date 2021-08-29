@@ -1,4 +1,5 @@
 import { Client } from '..'
+import { JSONObjSerializer } from '../serializers'
 import { MockSocket } from './mocks'
 
 global.WebSocket = MockSocket
@@ -113,8 +114,8 @@ describe('Client', () => {
             client.send('test', 'test')
             expect(receiver).resolves.toBe(true)
         })
-        it('receives root-object messages', async() => {
-            const client = new Client('ws://localhost:8888', { rootObject: true })
+        it('supports other serializers', async() => {
+            const client = new Client('ws://localhost:8888', { serializer: JSONObjSerializer })
             const listener = new Promise((res, rej) => {
                 client.on('test', data => data === 'test' ? res(true) : rej())
             })

@@ -1,6 +1,7 @@
 const http = require('http')
 const MockClient = require('ws')
 const { Server } = require('../server')
+import { JSONObjSerializer } from '../serializers'
 
 describe('Server Creation', () => {
     let server
@@ -53,6 +54,20 @@ describe('Server Creation', () => {
         expect(info).toHaveBeenCalledWith('Serving websocket server at ws://[::]:54322. Awaiting clients...')
         return new Promise(res => httpServer.close(res))
     })
+    it('supports other serializers', async() => {
+        server = new Server({ port: 54321, serializer: JSONObjSerializer })
+        await new Promise(res => server.server.on('listening', res))
+        const mockClient = new MockClient('ws://localhost:54321')
+        const listener = new Promise((res, rej) => {
+            server.on('test', data => data === 'test' ? res(true) : rej())
+        })
+        await new Promise((res, rej) => {
+            mockClient.onopen = res
+            mockClient.onerror = rej
+        })
+        mockClient.send('{"action":"test","data":"test"}')
+        await expect(listener).resolves.toBe(true)
+    })
 })
 describe('Client Handling', () => {
     let server
@@ -97,8 +112,8 @@ describe('Client Handling', () => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
             })
-            receivers.push(new Promise((res) => {
-                mockClient.on('message', (data) => {
+            receivers.push(new Promise(res => {
+                mockClient.on('message', data => {
                     res(data === JSON.stringify(['testMessage', { testKey: 239 }]))
                 })
             }))
@@ -338,26 +353,6 @@ describe('Server Client', () => {
             await server.clients[0].ping()
             await new Promise(res => setTimeout(res, 50))
             expect(errorFunc).toHaveBeenCalledWith('No ping response from client 0')
-        })
-        it('receives messages as objects', async() => {
-            server.clients.forEach(c => c.rootObject = true)
-            const listener = new Promise((res, rej) => {
-                server.on('test', data => data === 'test' ? res(true) : rej())
-            })
-            mockClient.send('{"action":"test","data":"test"}')
-            await expect(listener).resolves.toBe(true)
-        })
-        it('sends messages as objects', async() => {
-            const client = server.clients[0]
-            client.rootObject = true
-            const received = new Promise((res) => {
-                mockClient.on('message', res)
-            })
-            const result = client.send('testAction', 'testMessage')
-            // Sent by our client
-            await expect(result).resolves.toBe(undefined)
-            // Received by the mock client
-            await expect(received).resolves.toBe('{"action":"testAction","data":"testMessage"}')
         })
     })
     describe('Logging', () => {
