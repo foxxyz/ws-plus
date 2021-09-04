@@ -1,6 +1,6 @@
 const Benchmark = require('benchmark')
 const { Client } = require('..')
-const { MockSocket } = require('./mocks')
+const { MockSocket } = require('./__mocks__/socket')
 
 global.WebSocket = MockSocket
 

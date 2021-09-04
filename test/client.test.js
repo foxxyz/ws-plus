@@ -1,6 +1,6 @@
 import { Client } from '..'
 import { JSONObjSerializer } from '../serializers'
-import { MockSocket } from './mocks'
+import { MockSocket } from './__mocks__/socket'
 
 global.WebSocket = MockSocket
 
