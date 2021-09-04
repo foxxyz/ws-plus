@@ -47,15 +47,6 @@ class Server extends EventEmitter {
             client.terminate()
         }
         await new Promise(res => this.server.close(res))
-        // Wait for all clients to be disconnected
-        return new Promise(res => {
-            const poller = setInterval(() => {
-                if (this.clients.length === 0) {
-                    clearInterval(poller)
-                    res()
-                }
-            }, 5)
-        })
     }
     remove(client) {
         for(const key in this.subscribers) {
