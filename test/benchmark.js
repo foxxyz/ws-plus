@@ -17,7 +17,7 @@ const smallData = {
     }
 }
 
-const smallEncoded = JSON.stringify(['test', smallData])
+const smallEncoded = Buffer.from(JSON.stringify(['test', smallData]))
 
 const bigData = {
     obj: [
@@ -43,7 +43,7 @@ const bigData = {
     }
 }
 
-const bigEncoded = JSON.stringify(['test', bigData])
+const bigEncoded = Buffer.from(JSON.stringify(['test', bigData]))
 
 
 // benchmark sending/receiving
