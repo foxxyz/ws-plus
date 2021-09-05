@@ -28,6 +28,7 @@ Dead simple WebSocket communication for both Node.js and in-browser.
     - [Class Server](#class-server)
     - [Class ServerClient](#class-serverclient)
     - [Vue Module](#vue-module-ws-plusvue)
+    - [Notes on Serialization](#notes-on-serialization)
 - [Contributing](#contributing--tests)
 - [License](#license)
 
@@ -225,7 +226,7 @@ Options:
  - `autoConnect`: Automatically connect during construction. Set this to false if you prefer to call `.connect()` manually. (default: `true`)
  - `maxQueueSize`: Maximum amount of messages to queue when not connected (for example, if still awaiting connection) (default: `100`)
  - `reconnectInterval`: How many seconds to wait until attempting a reconnect when disconnected (default: `10`)
- - `serializer`: A custom serializer for encoding/decoding messages (default: `JSONArraySerializer`)
+ - `serializer`: Serializer class used for encoding/decoding messages (default: `JSONArraySerializer`). Accepts custom serializers, for more info see [serialization](#notes-on-serialization).
  - `verbosity`: Show more/less log messages (default: `1`). Set to `0` to silence.
 
 #### Event: `'connect'`
@@ -278,7 +279,7 @@ Send message to server.
 
 Listens and waits for clients. Can only be used in back-end environments, not in-browser.
 
-#### `new Server(options? = { host?, port?, maxSendBuffer?, verbosity?, ...wssOpts })`
+#### `new Server(options? = { host?, port?, maxSendBuffer?, serializer?, verbosity?, ...wssOpts })`
 
 Create a new server.
 
@@ -287,6 +288,7 @@ Options:
  - `host`: Host to listen on (default: `127.0.0.1`). Use `0.0.0.0` to accept any incoming connection.
  - `port`: Port to listen on (default: `8090`)
  - `maxSendBuffer`: Size of the send buffer in bytes. This governs how much the server can queue to an unacknowledging recipient (for example, during slow connections) before giving up. Messages that exceed the send buffer are dropped. (default: `20000`)
+- `serializer`: Serializer class used for encoding/decoding messages (default: `JSONArraySerializer`). Accepts custom serializers, for more info see [serialization](#notes-on-serialization).
  - `verbosity`: Show more/less log messages (default `1`). Use `0` to silence.
  - Any other option allowed in [`ws.WebSocketServer`](https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketserveroptions-callback)
 
@@ -395,6 +397,10 @@ onUnmounted(() => {
     client.off('action2', foo)
 })
 ```
+
+### Notes on Serialization
+
+By default, messages are serialized for transport using [`JSONArraySerializer`](serializers.js#L1), but any serializer that implements `encode()`/`decode()` is accepted during [`Server`](#new-serveroptions---host-port-maxsendbuffer-verbosity-wssopts-) or [`Client` instantiation](#new-clienturl--string-options---reconnectinterval-maxqueuesize-autoconnect-serializer-verbosity-).
 
 Contributing & Tests
 --------------------
