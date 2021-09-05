@@ -13,6 +13,17 @@
     "events": "^3.3.0",
     "ws": "^8.2.1"
   },
+  "files": [
+    "babel.config.js",
+    "client.js",
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "serializers.js",
+    "server.js",
+    "util.js",
+    "vue.js"
+  ],
   "peerDependencies": {
     "vue": ">2"
   },
