@@ -49,6 +49,7 @@ class Server extends EventEmitter {
         await new Promise(res => this.server.close(res))
     }
     remove(client) {
+        this.emit('disconnect', client)
         for(const key in this.subscribers) {
             this.subscribers[key] = this.subscribers[key].filter(c => c.id !== client.id)
         }

@@ -298,6 +298,12 @@ Special event emitted when a client connects to this server.
 
 On emission, the listening function will be called with the `ServerClient` instance of the newly connected client.
 
+#### Event: `'disconnect'`
+
+Special event emitted when a client disconnects from the server.
+
+On emission, the listening function will be called with the `ServerClient` instance of removed client.
+
 #### `server.broadcast(action : String, data : Any, skipClient? : ServerClient) : Promise`
 
 Broadcast a message to all clients.

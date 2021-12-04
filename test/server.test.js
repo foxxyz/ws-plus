@@ -79,6 +79,8 @@ describe('Client Handling', () => {
         await new Promise(res => server.server.on('listening', res))
     })
     it('accepts multiple connections', async() => {
+        const connectEvent = jest.fn()
+        server.on('connect', connectEvent)
         const clients = []
         for(let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
@@ -89,19 +91,24 @@ describe('Client Handling', () => {
             clients.push(mockClient)
         }
         expect(server.clients.length).toBe(3)
+        expect(connectEvent).toHaveBeenCalledTimes(3)
+        server.off('connect', connectEvent)
     })
     it('removes clients', async() => {
-        const clients = []
+        const disconnectEvent = jest.fn()
+        server.on('disconnect', disconnectEvent)
         for(let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
             })
-            clients.push(mockClient)
         }
+        const toRemove = server.clients[0]
         server.remove(server.clients[0])
         expect(server.clients.length).toBe(2)
+        expect(disconnectEvent).toHaveBeenCalledWith(toRemove)
+        server.off('disconnect', disconnectEvent)
     })
     it('broadcasts messages', async() => {
         const clients = []
