@@ -11,7 +11,7 @@ describe('Server Creation', () => {
     it('should not fail', async() => {
         server = new Server({ port: 54321, verbosity: 0 })
         await new Promise(res => server.server.on('listening', res))
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -21,7 +21,7 @@ describe('Server Creation', () => {
     it('delegates options to clients', async() => {
         server = new Server({ port: 54321, verbosity: 0, maxSendBuffer: 4000 })
         await new Promise(res => server.server.on('listening', res))
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -57,7 +57,7 @@ describe('Server Creation', () => {
     it('supports other serializers', async() => {
         server = new Server({ port: 54321, serializer: JSONObjSerializer })
         await new Promise(res => server.server.on('listening', res))
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         const listener = new Promise((res, rej) => {
             server.on('test', data => data === 'test' ? res(true) : rej())
         })
@@ -81,7 +81,7 @@ describe('Client Handling', () => {
     it('accepts multiple connections', async() => {
         const clients = []
         for(let i = 0; i < 3; i++) {
-            const mockClient = new MockClient('ws://localhost:54321')
+            const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -93,7 +93,7 @@ describe('Client Handling', () => {
     it('removes clients', async() => {
         const clients = []
         for(let i = 0; i < 3; i++) {
-            const mockClient = new MockClient('ws://localhost:54321')
+            const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -107,7 +107,7 @@ describe('Client Handling', () => {
         const clients = []
         const receivers = []
         for(let i = 0; i < 3; i++) {
-            const mockClient = new MockClient('ws://localhost:54321')
+            const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -126,7 +126,7 @@ describe('Client Handling', () => {
     it('allows skipping of clients during broadcasts', async() => {
         const clients = []
         for(let i = 0; i < 3; i++) {
-            const mockClient = new MockClient('ws://localhost:54321')
+            const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -143,7 +143,7 @@ describe('Client Handling', () => {
         const clients = []
         const receivers = []
         for(let i = 0; i < 2; i++) {
-            const mockClient = new MockClient('ws://localhost:54321')
+            const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -165,7 +165,7 @@ describe('Client Handling', () => {
         await expect(receivers[1]).rejects.toBe(undefined)
     })
     it('supports multiple subscriptions', async() => {
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -179,7 +179,7 @@ describe('Client Handling', () => {
         expect(result).resolves.toEqual([])
     })
     it('releases subscriptions on disconnect', async() => {
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -189,7 +189,7 @@ describe('Client Handling', () => {
         expect(server.subscribers['test'].length).toBe(0)
     })
     it('supports unsubscriptions', async() => {
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -211,7 +211,7 @@ describe('Client Handling', () => {
         expect(receive).rejects.toBe(undefined)
     })
     it('does not fail unsubscribing from unset subscriptions', async() => {
-        const mockClient = new MockClient('ws://localhost:54321')
+        const mockClient = new MockClient('ws://127.0.0.1:54321')
         await new Promise((res, rej) => {
             mockClient.onopen = res
             mockClient.onerror = rej
@@ -232,7 +232,7 @@ describe('Server Client', () => {
         })
         beforeEach(async() => {
             server = new Server({ port: 54321, verbosity: 0 })
-            mockClient = new MockClient('ws://localhost:54321')
+            mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
@@ -257,7 +257,7 @@ describe('Server Client', () => {
             await expect(emitted).resolves.toBe(undefined)
         })
         it('auto-broadcasts unregistered events', async() => {
-            const otherMockClient = new MockClient('ws://localhost:54321')
+            const otherMockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 otherMockClient.onopen = res
                 otherMockClient.onerror = rej
@@ -283,7 +283,7 @@ describe('Server Client', () => {
             await expect(received).rejects.toBe(undefined)
         })
         it('supports bouncing messages back', async() => {
-            const otherMockClient = new MockClient('ws://localhost:54321')
+            const otherMockClient = new MockClient('ws://127.0.0.1:54321')
             const bounceMessage = [...TEST_MESSAGE, true]
             await new Promise((res, rej) => {
                 otherMockClient.onopen = res
@@ -365,7 +365,7 @@ describe('Server Client', () => {
             debugLog = jest.spyOn(console, 'debug')
             errorLog = jest.spyOn(console, 'error')
             server = new Server({ port: 54321, verbosity: 2 })
-            mockClient = new MockClient('ws://localhost:54321')
+            mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
                 mockClient.onerror = rej
