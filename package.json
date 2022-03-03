@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "events": "^3.3.0",
-    "ws": "^8.3.0"
+    "ws": "^8.5.0"
   },
   "files": [
     "babel.config.js",
@@ -55,14 +55,14 @@
     "url": "https://github.com/foxxyz/ws-plus"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.0",
-    "@babel/preset-env": "^7.16.4",
-    "babel-jest": "^27.4.2",
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "babel-jest": "^27.5.1",
     "benchmark": "^2.1.4",
-    "eslint": "^8.4.0",
-    "eslint-plugin-jest": "^25.3.0",
-    "jest": "^27.4.3",
-    "vue": "^3.0.4"
+    "eslint": "^8.10.0",
+    "eslint-plugin-jest": "^26.1.1",
+    "jest": "^27.5.1",
+    "vue": "^3.2.31"
   },
   "author": "Ivo Janssen <hello@ivo.la>",
   "contributors": [
