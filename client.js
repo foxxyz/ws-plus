@@ -57,10 +57,6 @@ class Client extends EventEmitter {
         this.socket.onopen = this.opened.bind(this)
         this.socket.onclose = this.closed.bind(this)
     }
-    // Convenience method for EventEmitter.removeListener
-    off() {
-        this.removeListener(...arguments)
-    }
     opened() {
         this.connected = true
         this.emit('connect', this)
