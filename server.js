@@ -24,7 +24,9 @@ class Server extends EventEmitter {
         this.server.on('connection', this.add.bind(this))
         this.server.on('listening', () => {
             const { port: wssPort, family, address } = this.server.address()
-            const addrStr = family === 'IPv6' ? `[${address}]` : address
+            // Node < 18 returns `'IPv4'` or `'IPv6'` for `family`
+            // Node >= 18 returns `4` or `6` for `family`
+            const addrStr = ['IPv6', 6].includes(family) ? `[${address}]` : address
             this.log.info(`Serving websocket server at ws://${addrStr}:${wssPort}. Awaiting clients...`)
         })
         // Allow clients to subscribe to specific events
