@@ -1,5 +1,5 @@
 import { Client } from '.'
-import { inject, onMounted, onUnmounted, reactive } from 'vue'
+import { inject, onUnmounted, reactive } from 'vue'
 
 export function createSocket(url, { autoConnect=true, ...options } = {}) {
     const socket = reactive(new Client(url, { autoConnect: false, ...options }))
@@ -13,12 +13,10 @@ export function createSocket(url, { autoConnect=true, ...options } = {}) {
 
 export function listen(actions, { name='ws', subscribe=false }={}) {
     const client = inject(`$${name}`)
-    onMounted(() => {
-        for(const action in actions) {
-            client.on(action, actions[action])
-            if (subscribe) client.send('subscribe', action)
-        }
-    })
+    for(const action in actions) {
+        client.on(action, actions[action])
+        if (subscribe) client.send('subscribe', action)
+    }
     onUnmounted(() => {
         for(const action in actions) {
             if (subscribe) client.send('unsubscribe', action)

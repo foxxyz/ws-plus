@@ -394,10 +394,8 @@ Equivalent to doing:
 ```javascript
 const client = inject('$ws')
 
-onMounted(() => {
-    client.on('action1', foo)
-    client.on('action2', foo)
-})
+client.on('action1', foo)
+client.on('action2', foo)
 
 onUnmounted(() => {
     client.off('action1', foo)

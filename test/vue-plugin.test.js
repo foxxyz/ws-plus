@@ -1,4 +1,4 @@
-import { onMounted, reactive, inject } from 'vue'
+import { reactive, inject } from 'vue'
 
 import { Client } from '..'
 import { createSocket, listen } from '../vue'
@@ -47,7 +47,6 @@ describe('Vue 3 Plugin', () => {
         }
         reactive.mockImplementation(a => a)
         inject.mockImplementation(name => cache[name])
-        onMounted.mockImplementation(fn => fn())
     })
     afterEach(async() => {
         if (server) await server.close()
