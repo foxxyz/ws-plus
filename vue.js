@@ -1,5 +1,5 @@
 import { Client } from '.'
-import { inject, onUnmounted, reactive } from 'vue'
+import { inject, onBeforeUnmount, reactive } from 'vue'
 
 export function createSocket(url, { autoConnect=true, ...options } = {}) {
     const socket = reactive(new Client(url, { autoConnect: false, ...options }))
@@ -17,7 +17,7 @@ export function listen(actions, { name='ws', subscribe=false }={}) {
         client.on(action, actions[action])
         if (subscribe) client.send('subscribe', action)
     }
-    onUnmounted(() => {
+    onBeforeUnmount(() => {
         for(const action in actions) {
             if (subscribe) client.send('unsubscribe', action)
             client.off(action, actions[action])

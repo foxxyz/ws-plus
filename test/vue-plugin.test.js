@@ -1,4 +1,4 @@
-import { reactive, inject, onUnmounted } from 'vue'
+import { reactive, inject, onBeforeUnmount } from 'vue'
 
 import { Client } from '..'
 import { createSocket, listen } from '../vue'
@@ -51,7 +51,7 @@ describe('Vue 3 Plugin', () => {
         }
         reactive.mockImplementation(a => a)
         inject.mockImplementation(name => cache[name])
-        onUnmounted.mockImplementation(fn => unmountFn = fn)
+        onBeforeUnmount.mockImplementation(fn => unmountFn = fn)
     })
     afterEach(async() => {
         app.unmount()
