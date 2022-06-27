@@ -166,7 +166,7 @@ export default {
 
 #### Using with the Vue 3 Component API
 
-The [`listen` helper](#listenactions--object-options---name-) automatically calls `.on` and `.off` for specified actions when the component is mounted and unmounted.
+The [`listen` helper](#listenactions--object-options---name-) automatically calls `.on` and `.off` for specified actions when the component is mounted and unmounted. Subscriptions can also be made automatically if desired.
 
 ```javascript
 import { inject } from 'vue'
@@ -369,7 +369,7 @@ Create and return a reactive socket.
  - `url`: URL to connect to (example: `ws://localhost:8090`)
  - `options`: Options to pass to to Client (see [`new Client()`](#new-clienturl--string-options---reconnectinterval-maxqueuesize-autoconnect-verbosity-) for all options)
 
-#### `listen(actions : Object, options? : { name? })`
+#### `listen(actions : Object, options? : { name? : String, subscribe? : Boolean })`
 
 Register multiple listeners at once on a particular client.
 
@@ -377,6 +377,7 @@ Register multiple listeners at once on a particular client.
 
 Options:
  - `name`: Websocket name to listen to (default: `ws`)
+ - `subscribe`: Subscribe to passed actions (default: `false`)
 
 Example:
 ```javascript
