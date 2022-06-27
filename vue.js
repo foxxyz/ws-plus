@@ -11,15 +11,17 @@ export function createSocket(url, { autoConnect=true, ...options } = {}) {
     return socket
 }
 
-export function listen(actions, { name='ws' }={}) {
+export function listen(actions, { name='ws', subscribe=false }={}) {
     const client = inject(`$${name}`)
     onMounted(() => {
         for(const action in actions) {
             client.on(action, actions[action])
+            if (subscribe) client.send('subscribe', action)
         }
     })
     onUnmounted(() => {
         for(const action in actions) {
+            if (subscribe) client.send('unsubscribe', action)
             client.off(action, actions[action])
         }
     })

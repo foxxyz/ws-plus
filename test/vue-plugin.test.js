@@ -2,9 +2,12 @@ import { onMounted, reactive, inject } from 'vue'
 
 import { Client } from '..'
 import { createSocket, listen } from '../vue'
+import { Server } from '../server'
 
 const cache = {}
 jest.mock('vue')
+
+const delay = (ms) => new Promise((res) => setTimeout(res, ms))
 
 describe('Vue 2 Plugin', () => {
     let MockFramework
@@ -27,7 +30,7 @@ describe('Vue 2 Plugin', () => {
 })
 
 describe('Vue 3 Plugin', () => {
-    let MockApp
+    let MockApp, server
     beforeEach(() => {
         MockApp = class {
             constructor() {
@@ -45,6 +48,9 @@ describe('Vue 3 Plugin', () => {
         reactive.mockImplementation(a => a)
         inject.mockImplementation(name => cache[name])
         onMounted.mockImplementation(fn => fn())
+    })
+    afterEach(async() => {
+        if (server) await server.close()
     })
     it('can be installed', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false })
@@ -81,5 +87,42 @@ describe('Vue 3 Plugin', () => {
         client.receive({ data: '["action2", "data2"]' })
 
         expect(action2).toHaveBeenCalledWith('data2')
+    })
+    it('allows easy listening with a subscription in components', async () => {
+        server = new Server({ port: 54322, verbosity: 0 })
+        await new Promise(res => server.server.on('listening', res))
+
+        const client = createSocket('ws://127.0.0.1:54322')
+        const client2 = createSocket('ws://127.0.0.1:54322')
+        const app = new MockApp()
+        app.use(client, { name: 'ws1' })
+        app.use(client2, { name: 'ws2' })
+
+        await new Promise(res => client.once('connect', res))
+
+        // Attempt to listen without subscribing on client1
+        const testListener1 = jest.fn()
+        listen({ privateAction: testListener1 }, { name: 'ws1' })
+        // Listen with subscription on client2
+        const testListener2 = jest.fn()
+        listen({ privateAction: testListener2 }, { name: 'ws2', subscribe: true })
+
+        // Ensure subscriptions are set
+        await delay(10)
+
+        server.broadcastSubscribers('privateAction', 'testData')
+
+        // Time to receive messages
+        await delay(10)
+
+        expect(testListener1).not.toHaveBeenCalled()
+        expect(testListener2).toHaveBeenCalledWith('testData')
+
+        // Close both clients
+        const closing = new Promise(res => client.once('close', res))
+        const closing2 = new Promise(res => client2.once('close', res))
+        client.close()
+        client2.close()
+        await Promise.all([closing, closing2])
     })
 })
