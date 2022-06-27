@@ -1,4 +1,4 @@
-import { reactive, inject } from 'vue'
+import { reactive, inject, onUnmounted } from 'vue'
 
 import { Client } from '..'
 import { createSocket, listen } from '../vue'
@@ -30,7 +30,7 @@ describe('Vue 2 Plugin', () => {
 })
 
 describe('Vue 3 Plugin', () => {
-    let MockApp, server
+    let MockApp, server, app, unmountFn
     beforeEach(() => {
         MockApp = class {
             constructor() {
@@ -44,28 +44,34 @@ describe('Vue 3 Plugin', () => {
             use(plugin, options) {
                 plugin.install(this, options)
             }
+            unmount() {
+                if (unmountFn) unmountFn()
+                unmountFn = null
+            }
         }
         reactive.mockImplementation(a => a)
         inject.mockImplementation(name => cache[name])
+        onUnmounted.mockImplementation(fn => unmountFn = fn)
     })
     afterEach(async() => {
+        app.unmount()
         if (server) await server.close()
     })
     it('can be installed', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false })
-        const app = new MockApp()
+        app = new MockApp()
         app.use(client)
         expect(app.config.globalProperties.$ws).toBe(client)
     })
     it('allows overriding global reference name', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false })
-        const app = new MockApp()
+        app = new MockApp()
         app.use(client, { name: 'anotherSocket' })
         expect(app.config.globalProperties.$anotherSocket).toBe(client)
     })
     it('allows easy listening in components', async () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false })
-        const app = new MockApp()
+        app = new MockApp()
         app.use(client)
 
         const testAction = jest.fn()
@@ -77,7 +83,7 @@ describe('Vue 3 Plugin', () => {
     })
     it('allows easy listening on specific sockets', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false })
-        const app = new MockApp()
+        app = new MockApp()
         app.use(client, { name: 'secondary' })
 
         const action2 = jest.fn()
@@ -93,7 +99,7 @@ describe('Vue 3 Plugin', () => {
 
         const client = createSocket('ws://127.0.0.1:54322')
         const client2 = createSocket('ws://127.0.0.1:54322')
-        const app = new MockApp()
+        app = new MockApp()
         app.use(client, { name: 'ws1' })
         app.use(client2, { name: 'ws2' })
 
