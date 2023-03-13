@@ -35,7 +35,7 @@ Dead simple WebSocket communication for both Node.js and in-browser.
 Requirements
 ------------
 
- * Node 12+
+ * Node 14+
 
 Installation
 ------------
