@@ -1,6 +1,6 @@
 {
   "name": "ws-plus",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Dead Simple Websockets",
   "main": "index.js",
   "module": "client.js",
