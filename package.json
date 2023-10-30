@@ -6,15 +6,15 @@
   "module": "client.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "perf": "node test/benchmark.js"
   },
+  "type": "module",
   "dependencies": {
     "events": "^3.3.0",
     "ws": "^8.14.2"
   },
   "files": [
-    "babel.config.js",
     "client.js",
     "index.js",
     "LICENSE",
@@ -55,9 +55,6 @@
   },
   "devDependencies": {
     "@appliedminds/eslint-config": "^1.6.0",
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
-    "babel-jest": "^29.7.0",
     "benchmark": "^2.1.4",
     "eslint": "^8.52.0",
     "eslint-plugin-jest": "^27.6.0",

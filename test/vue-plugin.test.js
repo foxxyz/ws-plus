@@ -1,11 +1,16 @@
-import { reactive, inject, onBeforeUnmount } from 'vue'
+import { jest } from '@jest/globals'
 
 import { Client } from '..'
 import { createSocket, listen } from '../vue'
 import { Server } from '../server'
 
 const cache = {}
-jest.mock('vue')
+jest.unstable_mockModule('vue', () => ({
+    reactive: jest.fn(),
+    inject: jest.fn(),
+    onBeforeUnmount: jest.fn()
+}))
+const { reactive, inject, onBeforeUnmount } = await import('vue')
 
 const delay = ms => new Promise(res => setTimeout(res, ms))
 

@@ -50,7 +50,7 @@ Usage Examples
 ### Server
 
 ```javascript
-const { Server } = require('ws-plus')
+import { Server } from 'ws-plus'
 
 // Start server on port
 const server = new Server({ port: 8088 })

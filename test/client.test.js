@@ -1,6 +1,7 @@
-import { Client } from '..'
+import { Client } from '../index.js'
 import { JSONObjSerializer } from '../serializers'
 import { MockSocket } from './mocks/socket'
+import { jest } from '@jest/globals'
 
 global.WebSocket = MockSocket
 

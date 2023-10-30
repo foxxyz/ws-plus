@@ -7,7 +7,7 @@ const THRESHOLDS = {
 }
 
 // Helper function to consider verbosity when logging
-function createLogger({ verbosity }) {
+export function createLogger({ verbosity }) {
     const log = function(delegate, threshold, ...msg) {
         if (verbosity >= threshold) delegate(...msg)
     }
@@ -18,5 +18,3 @@ function createLogger({ verbosity }) {
     }
     return logger
 }
-
-module.exports = { createLogger }

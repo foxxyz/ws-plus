@@ -2,6 +2,7 @@ import { watch } from 'vue'
 
 import { createSocket } from '../vue'
 import { MockSocket } from './mocks/socket'
+import { jest } from '@jest/globals'
 
 global.WebSocket = MockSocket
 
