@@ -7,7 +7,7 @@ import { Server } from '../server'
 const cache = {}
 jest.mock('vue')
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Vue 2 Plugin', () => {
     let MockFramework
@@ -16,13 +16,13 @@ describe('Vue 2 Plugin', () => {
         MockFramework.util = { defineReactive: () => {} }
     })
     it('can be installed', () => {
-        const client = new Client('ws://localhost:8888', { autoConnect: false })
+        const client = new Client('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         client.install(MockFramework)
         const app = new MockFramework()
         expect(app.$ws).toBe(client)
     })
     it('allows overriding global reference name', () => {
-        const client = new Client('ws://localhost:8888', { autoConnect: false })
+        const client = new Client('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         client.install(MockFramework, { name: 'anotherSocket' })
         const app = new MockFramework()
         expect(app.$anotherSocket).toBe(client)
@@ -38,12 +38,14 @@ describe('Vue 3 Plugin', () => {
                     globalProperties: {}
                 }
             }
+            // eslint-disable-next-line class-methods-use-this
             provide(name, obj) {
                 cache[name] = obj
             }
             use(plugin, options) {
                 plugin.install(this, options)
             }
+            // eslint-disable-next-line class-methods-use-this
             unmount() {
                 if (unmountFn) unmountFn()
                 unmountFn = null
@@ -58,19 +60,19 @@ describe('Vue 3 Plugin', () => {
         if (server) await server.close()
     })
     it('can be installed', () => {
-        const client = createSocket('ws://localhost:8888', { autoConnect: false })
+        const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         app = new MockApp()
         app.use(client)
         expect(app.config.globalProperties.$ws).toBe(client)
     })
     it('allows overriding global reference name', () => {
-        const client = createSocket('ws://localhost:8888', { autoConnect: false })
+        const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         app = new MockApp()
         app.use(client, { name: 'anotherSocket' })
         expect(app.config.globalProperties.$anotherSocket).toBe(client)
     })
-    it('allows easy listening in components', async () => {
-        const client = createSocket('ws://localhost:8888', { autoConnect: false })
+    it('allows easy listening in components', () => {
+        const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         app = new MockApp()
         app.use(client)
 
@@ -82,7 +84,7 @@ describe('Vue 3 Plugin', () => {
         expect(testAction).toHaveBeenCalledWith('testData')
     })
     it('allows easy listening on specific sockets', () => {
-        const client = createSocket('ws://localhost:8888', { autoConnect: false })
+        const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
         app = new MockApp()
         app.use(client, { name: 'secondary' })
 
@@ -93,7 +95,7 @@ describe('Vue 3 Plugin', () => {
 
         expect(action2).toHaveBeenCalledWith('data2')
     })
-    it('allows easy listening with a subscription in components', async () => {
+    it('allows easy listening with a subscription in components', async() => {
         server = new Server({ port: 54322, verbosity: 0 })
         await new Promise(res => server.server.on('listening', res))
 

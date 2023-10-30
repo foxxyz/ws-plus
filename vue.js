@@ -1,7 +1,7 @@
 import { Client } from '.'
 import { inject, onBeforeUnmount, reactive } from 'vue'
 
-export function createSocket(url, { autoConnect=true, ...options } = {}) {
+export function createSocket(url, { autoConnect = true, ...options } = {}) {
     const socket = reactive(new Client(url, { autoConnect: false, ...options }))
     // The reason automatic connection is handled differently here,
     // is because calling `this.connect()` in the constructor pre-empts
@@ -11,14 +11,14 @@ export function createSocket(url, { autoConnect=true, ...options } = {}) {
     return socket
 }
 
-export function listen(actions, { name='ws', subscribe=false }={}) {
+export function listen(actions, { name = 'ws', subscribe = false } = {}) {
     const client = inject(`$${name}`)
-    for(const action in actions) {
+    for (const action in actions) {
         client.on(action, actions[action])
         if (subscribe) client.send('subscribe', action)
     }
     onBeforeUnmount(() => {
-        for(const action in actions) {
+        for (const action in actions) {
             if (subscribe) client.send('unsubscribe', action)
             client.off(action, actions[action])
         }

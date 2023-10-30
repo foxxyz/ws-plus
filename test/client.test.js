@@ -1,21 +1,21 @@
 import { Client } from '..'
 import { JSONObjSerializer } from '../serializers'
-import { MockSocket } from './__mocks__/socket'
+import { MockSocket } from './mocks/socket'
 
 global.WebSocket = MockSocket
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Client', () => {
     describe('Basic Operation', () => {
         let client
         beforeEach(() => {
-            client = new Client('ws://localhost:8888')
+            client = new Client('ws://localhost:8888', { verbosity: 0 })
         })
         afterEach(() => {
             client.close()
         })
-        it('connects', async () => {
+        it('connects', async() => {
             await delay(60)
             expect(client.connected).toBe(true)
         })
@@ -49,14 +49,14 @@ describe('Client', () => {
         it('receives messages', async() => {
             await delay(60)
             let flag = false
-            client.on('testAction', (data) => flag = data)
+            client.on('testAction', data => flag = data)
             client.socket.onmessage({ data: '["testAction", "testData"]' })
             expect(flag).toBe('testData')
         })
         it('allows clearing of listeners', async() => {
             await delay(60)
             let flag = false
-            const f = (data) => flag = data
+            const f = data => flag = data
             client.on('testAction', f)
             client.off('testAction', f)
             client.socket.onmessage({ data: '["testAction", "testData"]' })
@@ -71,7 +71,7 @@ describe('Client', () => {
         })
         it('reconnects automatically', async() => {
             // Set 10ms reconnect interval
-            client.reconnectInterval = .01
+            client.reconnectInterval = 0.01
             await delay(60)
             // Spy on connect function
             const connectFunction = jest.spyOn(client, 'connect')
@@ -83,7 +83,7 @@ describe('Client', () => {
         })
         it('emits close events during abnormal close', async() => {
             // Set 10ms reconnect interval to prevent hanging
-            client.reconnectInterval = .01
+            client.reconnectInterval = 0.01
             const func = jest.fn()
             client.on('close', func)
             await delay(60)
@@ -92,40 +92,38 @@ describe('Client', () => {
         })
     })
     describe('Edge Cases', () => {
-        it('queues messages when not connected', async() => {
-            const client = new Client('ws://localhost:8888', { autoConnect: false })
+        it('queues messages when not connected', () => {
+            const client = new Client('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
             client.send('test', 'test')
             expect(client.queue.length).toBe(1)
         })
-        it('prevents message queue overflow', async() => {
-            const client = new Client('ws://localhost:8888', { maxQueueSize: 2, autoConnect: false })
+        it('prevents message queue overflow', () => {
+            const client = new Client('ws://localhost:8888', { maxQueueSize: 2, autoConnect: false, verbosity: 0 })
             client.send('test', 'test')
             client.send('test', 'test2')
             client.send('test', 'test3')
             expect(client.queue.length).toBe(2)
         })
-        it('sends messages as objects', async() => {
-            const client = new Client('ws://localhost:8888', { rootObject: true })
+        it('sends messages as objects if object serializer used', async() => {
+            const client = new Client('ws://localhost:8888', { serializer: JSONObjSerializer, verbosity: 0 })
             const receiver = new Promise((res, rej) => {
-                client.receive = ({ data }) => {
-                    return Array.isArray(JSON.parse(data)) ? rej() : res(true)
-                }
+                client.socket.send = data => Array.isArray(JSON.parse(data)) ? rej() : res(true)
             })
             client.send('test', 'test')
-            expect(receiver).resolves.toBe(true)
+            await expect(receiver).resolves.toBe(true)
         })
         it('supports other serializers', async() => {
-            const client = new Client('ws://localhost:8888', { serializer: JSONObjSerializer })
+            const client = new Client('ws://localhost:8888', { serializer: JSONObjSerializer, verbosity: 0 })
             const listener = new Promise((res, rej) => {
                 client.on('test', data => data === 'test' ? res(true) : rej())
             })
             client.receive({ data: '{"action":"test","data":"test"}' })
-            expect(listener).resolves.toBe(true)
+            await expect(listener).resolves.toBe(true)
         })
         it('retries initial connect automatically', async() => {
-            const client = new Client('invalid-url')
+            const client = new Client('invalid-url', { verbosity: 0 })
             // Set 10ms reconnect interval
-            client.reconnectInterval = .01
+            client.reconnectInterval = 0.01
             await delay(60)
             // Spy on connect function
             const connectFunction = jest.spyOn(client, 'connect')
@@ -143,7 +141,7 @@ describe('Client', () => {
             const warnLogger = jest.spyOn(console, 'warn')
             const client = new Client('ws://localhost:8888', { verbosity: 0 })
             // Set 10ms reconnect interval to prevent hanging
-            client.reconnectInterval = .01
+            client.reconnectInterval = 0.01
             await delay(60)
             // Force close
             client.socket.close()
@@ -156,12 +154,13 @@ describe('Client', () => {
             const warnLogger = jest.spyOn(console, 'warn')
             const client = new Client('ws://localhost:8888', { verbosity: 1 })
             // Set 10ms reconnect interval to prevent hanging
-            client.reconnectInterval = .01
+            client.reconnectInterval = 0.01
             await delay(60)
             expect(infoLogger).toHaveBeenCalledWith('Socket connected at ws://localhost:8888')
             // Force close
             client.socket.close()
             expect(warnLogger).toHaveBeenCalledWith('Socket closed. Retrying in 0.01 seconds...')
+            await new Promise(res => client.once('connect', res))
             client.close()
         })
     })

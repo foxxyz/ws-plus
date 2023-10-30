@@ -6,8 +6,8 @@ class MockSocket {
         this.onopen = () => {}
         this.onclose = () => {}
         // Simulate connection attempt
-        setTimeout((() => {
-            if (!this.url.startsWith('ws://') ) {
+        setTimeout(() => {
+            if (!this.url.startsWith('ws://')) {
                 const err = new Error(`connect ECONNREFUSED ${url}`)
                 if (!this.onerror) {
                     throw err
@@ -17,12 +17,15 @@ class MockSocket {
             } else {
                 this.onopen()
             }
-        }).bind(this), 50)
+        }, 50)
     }
     close(code) {
         this.onclose({ code })
     }
-    send() {}
+    // eslint-disable-next-line class-methods-use-this
+    send() {
+        // Do nothing
+    }
 }
 
 module.exports = { MockSocket }

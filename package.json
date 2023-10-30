@@ -47,7 +47,6 @@
     "coverageReporters": [
       "text"
     ],
-    "silent": true,
     "verbose": true
   },
   "repository": {

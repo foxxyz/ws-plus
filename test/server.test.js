@@ -42,7 +42,7 @@ describe('Server Creation', () => {
     })
     it('ignores port when existing http server specified', () => {
         const httpServer = http.createServer()
-        server = new Server({ port: 54321, server: httpServer })
+        server = new Server({ port: 54321, server: httpServer, verbosity: 0 })
         expect(server.server._server).toBe(httpServer)
         expect(server.server.options.port).toBe(null)
     })
@@ -55,7 +55,7 @@ describe('Server Creation', () => {
         return new Promise(res => httpServer.close(res))
     })
     it('supports other serializers', async() => {
-        server = new Server({ port: 54321, serializer: JSONObjSerializer })
+        server = new Server({ port: 54321, serializer: JSONObjSerializer, verbosity: 0 })
         await new Promise(res => server.server.on('listening', res))
         const mockClient = new MockClient('ws://127.0.0.1:54321')
         const listener = new Promise((res, rej) => {
@@ -82,7 +82,7 @@ describe('Client Handling', () => {
         const connectEvent = jest.fn()
         server.on('connect', connectEvent)
         const clients = []
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
@@ -97,7 +97,7 @@ describe('Client Handling', () => {
     it('removes clients', async() => {
         const disconnectEvent = jest.fn()
         server.on('disconnect', disconnectEvent)
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
@@ -113,7 +113,7 @@ describe('Client Handling', () => {
     it('broadcasts messages', async() => {
         const clients = []
         const receivers = []
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
@@ -132,7 +132,7 @@ describe('Client Handling', () => {
     })
     it('allows skipping of clients during broadcasts', async() => {
         const clients = []
-        for(let i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
@@ -149,7 +149,7 @@ describe('Client Handling', () => {
     it('supports subscriptions', async() => {
         const clients = []
         const receivers = []
-        for(let i = 0; i < 2; i++) {
+        for (let i = 0; i < 2; i++) {
             const mockClient = new MockClient('ws://127.0.0.1:54321')
             await new Promise((res, rej) => {
                 mockClient.onopen = res
@@ -157,7 +157,7 @@ describe('Client Handling', () => {
             })
             receivers.push(new Promise((res, rej) => {
                 let timeout = null
-                mockClient.on('message', (data) => {
+                mockClient.on('message', data => {
                     res(data.toString() === JSON.stringify(['specialMessage', { testKey: 239 }]))
                     clearTimeout(timeout)
                 })
@@ -183,7 +183,7 @@ describe('Client Handling', () => {
     })
     it('does not fail broadcasting to unset subscriptions', async() => {
         const result = server.broadcastSubscribers('fakeSubscription')
-        expect(result).resolves.toEqual([])
+        await expect(result).resolves.toEqual([])
     })
     it('releases subscriptions on disconnect', async() => {
         const mockClient = new MockClient('ws://127.0.0.1:54321')
@@ -191,9 +191,9 @@ describe('Client Handling', () => {
             mockClient.onopen = res
             mockClient.onerror = rej
         })
-        server.subscribers['test'] = [server.clients[0]]
+        server.subscribers.test = [server.clients[0]]
         server.remove(server.clients[0])
-        expect(server.subscribers['test'].length).toBe(0)
+        expect(server.subscribers.test.length).toBe(0)
     })
     it('supports unsubscriptions', async() => {
         const mockClient = new MockClient('ws://127.0.0.1:54321')
@@ -203,7 +203,7 @@ describe('Client Handling', () => {
         })
         const receive = new Promise((res, rej) => {
             let timeout = null
-            mockClient.on('message', (data) => {
+            mockClient.on('message', data => {
                 res(data === JSON.stringify(['specialMessage', { testKey: 239 }]))
                 clearTimeout(timeout)
             })
@@ -211,11 +211,11 @@ describe('Client Handling', () => {
             timeout = setTimeout(rej, 50)
         })
         // Force a subscription
-        server.subscribers['specialMessage'] = [server.clients[0]]
+        server.subscribers.specialMessage = [server.clients[0]]
         await mockClient.send(JSON.stringify(['unsubscribe', 'specialMessage']))
         await new Promise(res => setTimeout(res, 20))
         await server.broadcastSubscribers('specialMessage', { testKey: 239 })
-        expect(receive).rejects.toBe(undefined)
+        await expect(receive).rejects.toBe(undefined)
     })
     it('does not fail unsubscribing from unset subscriptions', async() => {
         const mockClient = new MockClient('ws://127.0.0.1:54321')
@@ -246,21 +246,21 @@ describe('Server Client', () => {
             })
         })
         it('receives messages', async() => {
-            const received = new Promise((res) => {
+            const received = new Promise(res => {
                 server.clients[0].connection.on('message', msg => res(msg.toString()))
             })
             mockClient.send('["test", []]')
             await expect(received).resolves.toBe('["test", []]')
         })
         it('emits registered events', async() => {
-            const emitted = new Promise((res) => {
+            const emitted = new Promise(res => {
                 const listener = () => {
                     res()
                     server.off('test', listener)
                 }
                 server.on('test', listener)
             })
-            await new Promise((res) => mockClient.send(JSON.stringify(TEST_MESSAGE), {}, res))
+            await new Promise(res => mockClient.send(JSON.stringify(TEST_MESSAGE), {}, res))
             await expect(emitted).resolves.toBe(undefined)
         })
         it('auto-broadcasts unregistered events', async() => {
@@ -270,14 +270,14 @@ describe('Server Client', () => {
                 otherMockClient.onerror = rej
             })
             const otherReceived = new Promise((res, rej) => {
-                otherMockClient.on('message', (data) => {
+                otherMockClient.on('message', data => {
                     if (data.toString() === JSON.stringify(TEST_MESSAGE)) res()
                     else rej()
                 })
             })
             const received = new Promise((res, rej) => {
                 let timer = null
-                mockClient.on('message', (data) => {
+                mockClient.on('message', data => {
                     if (data === JSON.stringify(TEST_MESSAGE)) res()
                     else rej()
                     clearTimeout(timer)
@@ -327,7 +327,9 @@ describe('Server Client', () => {
             const client = server.clients[0]
             client.maxSendBuffer = 50
             Object.defineProperty(client.connection, 'bufferedAmount', {
-                get: function() { return 70 }
+                get() {
+                    return 70
+                }
             })
             const result = client.deliver('anotherAct', 'a really long message that exceeds the send buffer by a large margin')
             await expect(result).rejects.toMatch(/Send buffer overflow/)
@@ -340,7 +342,7 @@ describe('Server Client', () => {
             await pong
             expect(server.clients[0].latency).toBeGreaterThan(0)
         })
-        it('resets pings on successful pong', async() => {
+        it('resets pings on successful pong', () => {
             server.clients[0].pong()
             expect(server.clients[0].pings).toEqual(0)
         })
@@ -366,6 +368,7 @@ describe('Server Client', () => {
         let mockClient, server, debugLog, errorLog
         afterEach(async() => {
             mockClient.close()
+            await new Promise(res => mockClient.once('close', res))
             await server.close()
         })
         beforeEach(async() => {
@@ -379,7 +382,7 @@ describe('Server Client', () => {
             })
         })
         it('logs received messages in debug mode', async() => {
-            const received = new Promise((res) => {
+            const received = new Promise(res => {
                 server.clients[0].connection.on('message', res)
             })
             mockClient.send('["test", []]')
@@ -387,7 +390,7 @@ describe('Server Client', () => {
             expect(debugLog).toHaveBeenCalledWith('Received \'test\':', [])
         })
         it('notifies of malformed messages', async() => {
-            const received = new Promise((res) => {
+            const received = new Promise(res => {
                 server.clients[0].connection.on('message', res)
             })
             mockClient.send('test')
@@ -404,7 +407,9 @@ describe('Server Client', () => {
             const client = server.clients[0]
             client.maxSendBuffer = 50
             Object.defineProperty(client.connection, 'bufferedAmount', {
-                get: function() { return 70 }
+                get() {
+                    return 70
+                }
             })
             await client.send('anotherAct', 'a really long message that exceeds the send buffer by a large margin')
             expect(errorLog).toHaveBeenCalledWith('Client 0: Unable to deliver "anotherAct" message: Send buffer overflow')

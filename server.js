@@ -5,7 +5,7 @@ const { createLogger } = require('./util')
 const { JSONArraySerializer } = require('./serializers')
 
 class Server extends EventEmitter {
-    constructor({ host='127.0.0.1', port=8090, verbosity=1, serializer=JSONArraySerializer, maxSendBuffer=20000, ...wssOpts }={}) {
+    constructor({ host = '127.0.0.1', port = 8090, verbosity = 1, serializer = JSONArraySerializer, maxSendBuffer = 20000, ...wssOpts } = {}) {
         super()
         this.clients = []
         this.idTracker = 0
@@ -36,10 +36,10 @@ class Server extends EventEmitter {
     add(connection) {
         this.clients.push(new ServerClient(this, connection, this.idTracker++, this.clientOptions))
     }
-    async broadcast(action, data, skipClient) {
+    broadcast(action, data, skipClient) {
         return Promise.all(this.clients.map(c => skipClient === c ? Promise.resolve() : c.send(action, data)))
     }
-    async broadcastSubscribers(action, data) {
+    broadcastSubscribers(action, data) {
         const subscribers = this.subscribers[action] || []
         return Promise.all(subscribers.map(c => c.send(action, data)))
     }
@@ -52,7 +52,7 @@ class Server extends EventEmitter {
     }
     remove(client) {
         this.emit('disconnect', client)
-        for(const key in this.subscribers) {
+        for (const key in this.subscribers) {
             this.subscribers[key] = this.subscribers[key].filter(c => c.id !== client.id)
         }
         this.clients = this.clients.filter(c => c.id !== client.id)
@@ -60,7 +60,7 @@ class Server extends EventEmitter {
     subscribe(actions, client) {
         this.log.info(`Client ${client.id} subscribing to ${actions}`)
         actions = [].concat(actions)
-        for(const action of actions) {
+        for (const action of actions) {
             if (!this.subscribers[action]) this.subscribers[action] = []
             this.subscribers[action].push(client)
         }
@@ -68,7 +68,7 @@ class Server extends EventEmitter {
     unsubscribe(actions, client) {
         this.log.info(`Client ${client.id} unsubscribing from ${actions}`)
         actions = [].concat(actions)
-        for(const action of actions) {
+        for (const action of actions) {
             if (!this.subscribers[action]) continue
             this.subscribers[action] = this.subscribers[action].filter(c => c.id !== client.id)
         }
@@ -105,7 +105,7 @@ class ServerClient {
         // Skip if there's a lot of buffered data
         if (this.connection.bufferedAmount > this.maxSendBuffer) return Promise.reject('Send buffer overflow')
         return new Promise((res, rej) => {
-            this.connection.send(this._serialize(action, data), (e) => {
+            this.connection.send(this._serialize(action, data), e => {
                 // Error callback for async errors
                 if (e) return rej(e.message)
                 res()
@@ -133,25 +133,24 @@ class ServerClient {
                 }
                 this.connection.ping(undefined, undefined, callback)
             })
-        }
-        catch(e) {
+        } catch (e) {
             return this.error(`Error pinging client ${this.id}`)
         }
         this.pings++
         this.lastPing = performance.now()
-        this.log.log('Pinging client ' + this.id)
+        this.log.log(`Pinging client ${this.id}`)
         clearTimeout(this.pingTimer)
         this.pingTimer = setTimeout(this.ping.bind(this), this.pingFrequency)
     }
     pong() {
         if (this.lastPing) {
             this.latency = performance.now() - this.lastPing
-            this.log.log('Client ' + this.id + ' latency: ' + this.latency.toFixed(3) + 'ms')
+            this.log.log(`Client ${this.id} latency: ${this.latency.toFixed(3)}ms`)
         }
         this.pings = 0
     }
     receive(message) {
-        var decoded = ''
+        let decoded = ''
         try {
             decoded = this._deserialize(message)
             this.log.debug(`Received '${decoded[0]}':`, decoded[1])
@@ -167,9 +166,8 @@ class ServerClient {
     async send(action, data) {
         try {
             await this.deliver(action, data)
-        }
         // Log delivery errors
-        catch(e) {
+        } catch (e) {
             this.log.error(`${this.toString()}: Unable to deliver "${action}" message: ${e}`)
         }
     }

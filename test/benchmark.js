@@ -1,13 +1,13 @@
 const Benchmark = require('benchmark')
 const { Client } = require('..')
-const { MockSocket } = require('./__mocks__/socket')
+const { MockSocket } = require('./mocks/socket')
 
 global.WebSocket = MockSocket
 
 const client = new Client('ws://localhost:8888')
 client.connected = true
 
-var suite = new Benchmark.Suite
+const suite = new Benchmark.Suite
 
 const smallData = {
     obj: 'test',
@@ -45,22 +45,21 @@ const bigData = {
 
 const bigEncoded = Buffer.from(JSON.stringify(['test', bigData]))
 
-
 // benchmark sending/receiving
 suite
-    .add('Client#send (small)', function() {
+    .add('Client#send (small)', () => {
         client.send('test', smallData)
     })
-    .add('Client#send (large)', function() {
+    .add('Client#send (large)', () => {
         client.send('test', bigData)
     })
-    .add('Client#receive (small)', function() {
+    .add('Client#receive (small)', () => {
         client.receive({ data: smallEncoded })
     })
-    .add('Client#receive (large)', function() {
+    .add('Client#receive (large)', () => {
         client.receive({ data: bigEncoded })
     })
-    .on('cycle', function(event) {
+    .on('cycle', event => {
         console.log(String(event.target))
     })
     .run({ async: true })

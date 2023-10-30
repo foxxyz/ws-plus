@@ -1,5 +1,5 @@
 // For node.js usage outside of browsers
-if (typeof(WebSocket) === 'undefined') {
+if (typeof WebSocket === 'undefined') {
     global.WebSocket = require('ws')
 }
 const EventEmitter = require('events')
@@ -8,19 +8,18 @@ const { JSONArraySerializer } = require('./serializers')
 
 class Client extends EventEmitter {
     // Support Vue components
-    install(app, { name='ws' }={}) {
+    install(app, { name = 'ws' } = {}) {
         // Vue 3
         if (app.config) {
             app.config.globalProperties[`$${name}`] = this
             app.provide(`$${name}`, this)
-        }
         // Vue 2
-        else {
+        } else {
             app.prototype[`$${name}`] = this
             app.util.defineReactive(this, 'connected', this.connected)
         }
     }
-    constructor(url, { reconnectInterval=10, maxQueueSize=100, autoConnect=true, verbosity=1, serializer=JSONArraySerializer }={}) {
+    constructor(url, { reconnectInterval = 10, maxQueueSize = 100, autoConnect = true, verbosity = 1, serializer = JSONArraySerializer } = {}) {
         super()
         this.connected = false
         this.queue = []
@@ -62,7 +61,7 @@ class Client extends EventEmitter {
         this.emit('connect', this)
         this.log.info(`Socket connected at ${this.socket.url}`)
         // Empty queue of messages waiting for connection
-        while(this.queue.length) {
+        while (this.queue.length) {
             this.send(...this.queue.shift())
         }
     }
@@ -74,7 +73,7 @@ class Client extends EventEmitter {
         if (!this.connected) {
             if (this.queue.length >= this.maxQueueSize) return
             this.log.warn(`'${action}' message queued, waiting for next connection...`)
-            this.queue.push(arguments)
+            this.queue.push([action, data, bounce])
             if (this.queue.length === this.maxQueueSize) this.log.warn('Max queue size reached for socket, no further messages will be queued')
             return
         }

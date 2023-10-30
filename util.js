@@ -8,11 +8,11 @@ const THRESHOLDS = {
 
 // Helper function to consider verbosity when logging
 function createLogger({ verbosity }) {
-    const log = function(delegate ,threshold, ...msg) {
+    const log = function(delegate, threshold, ...msg) {
         if (verbosity >= threshold) delegate(...msg)
     }
     const logger = {}
-    for(const severity of ['debug', 'info', 'log', 'warn', 'error']) {
+    for (const severity of ['debug', 'info', 'log', 'warn', 'error']) {
         // eslint-disable-next-line no-console
         logger[severity] = log.bind(null, console[severity], THRESHOLDS[severity])
     }

@@ -1,11 +1,11 @@
 import { watch } from 'vue'
 
 import { createSocket } from '../vue'
-import { MockSocket } from './__mocks__/socket'
+import { MockSocket } from './mocks/socket'
 
 global.WebSocket = MockSocket
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms))
+const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Vue 3 Plugin', () => {
     describe('Behavior', () => {
