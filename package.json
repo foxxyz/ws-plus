@@ -55,6 +55,7 @@
     "url": "https://github.com/foxxyz/ws-plus"
   },
   "devDependencies": {
+    "@appliedminds/eslint-config": "^1.6.0",
     "@babel/core": "^7.23.2",
     "@babel/preset-env": "^7.23.2",
     "babel-jest": "^29.7.0",
@@ -70,61 +71,9 @@
   ],
   "license": "MIT",
   "eslintConfig": {
-    "env": {
-      "browser": true,
-      "commonjs": true,
-      "es6": true,
-      "node": true,
-      "jest/globals": true
-    },
     "extends": [
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "jest"
-    ],
-    "rules": {
-      "eqeqeq": [
-        "error",
-        "always"
-      ],
-      "indent": [
-        "error",
-        4
-      ],
-      "linebreak-style": [
-        "error",
-        "unix"
-      ],
-      "quotes": [
-        "error",
-        "single"
-      ],
-      "no-console": [
-        "error",
-        {
-          "allow": [
-            "warn",
-            "info",
-            "error"
-          ]
-        }
-      ],
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "prefer-const": [
-        "error"
-      ],
-      "semi": [
-        "error",
-        "never"
-      ]
-    }
+      "@appliedminds",
+      "plugin:jest/recommended"
+    ]
   }
 }
