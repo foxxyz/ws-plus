@@ -1,16 +1,16 @@
 import { jest } from '@jest/globals'
+import { JSDOM } from 'jsdom'
 
-import { Client } from '..'
-import { createSocket, listen } from '../vue'
-import { Server } from '../server'
-
-const cache = {}
-jest.unstable_mockModule('vue', () => ({
-    reactive: jest.fn(),
-    inject: jest.fn(),
-    onBeforeUnmount: jest.fn()
-}))
-const { reactive, inject, onBeforeUnmount } = await import('vue')
+// Set up DOM globals before importing any modules that need it
+const dom = new JSDOM('<body><div id="app" /></body>')
+global.window = dom.window
+global.Element = dom.window.Element
+global.SVGElement = dom.window.SVGElement
+global.document = dom.window.document
+global.WebSocket = dom.window.WebSocket
+const { createApp } = await import('vue')
+const { Client, Server } = await import('..')
+const { createSocket, listen } = await import('../vue.js')
 
 const delay = ms => new Promise(res => setTimeout(res, ms))
 
@@ -35,54 +35,44 @@ describe('Vue 2 Plugin', () => {
 })
 
 describe('Vue 3 Plugin', () => {
-    let MockApp, server, app, unmountFn
-    beforeEach(() => {
-        MockApp = class {
-            constructor() {
-                this.config = {
-                    globalProperties: {}
-                }
-            }
-            // eslint-disable-next-line class-methods-use-this
-            provide(name, obj) {
-                cache[name] = obj
-            }
-            use(plugin, options) {
-                plugin.install(this, options)
-            }
-            // eslint-disable-next-line class-methods-use-this
-            unmount() {
-                if (unmountFn) unmountFn()
-                unmountFn = null
-            }
-        }
-        reactive.mockImplementation(a => a)
-        inject.mockImplementation(name => cache[name])
-        onBeforeUnmount.mockImplementation(fn => unmountFn = fn)
-    })
+    let server, app
     afterEach(async() => {
         app.unmount()
         if (server) await server.close()
     })
     it('can be installed', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
-        app = new MockApp()
+        const component = {
+            template: '<div/>'
+        }
+        app = createApp(component)
         app.use(client)
+        app.mount(dom.window.document.querySelector('#app'))
         expect(app.config.globalProperties.$ws).toBe(client)
     })
     it('allows overriding global reference name', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
-        app = new MockApp()
+        const component = {
+            template: '<div/>'
+        }
+        app = createApp(component)
         app.use(client, { name: 'anotherSocket' })
+        app.mount(dom.window.document.querySelector('#app'))
         expect(app.config.globalProperties.$anotherSocket).toBe(client)
     })
     it('allows easy listening in components', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
-        app = new MockApp()
-        app.use(client)
 
         const testAction = jest.fn()
-        listen({ testAction })
+        const component = {
+            template: '<div/>',
+            setup() {
+                listen({ testAction })
+            }
+        }
+        app = createApp(component)
+        app.use(client)
+        app.mount(dom.window.document.querySelector('#app'))
 
         client.receive({ data: '["testAction", "testData"]' })
 
@@ -90,11 +80,17 @@ describe('Vue 3 Plugin', () => {
     })
     it('allows easy listening on specific sockets', () => {
         const client = createSocket('ws://localhost:8888', { autoConnect: false, verbosity: 0 })
-        app = new MockApp()
-        app.use(client, { name: 'secondary' })
 
         const action2 = jest.fn()
-        listen({ action2 }, { name: 'secondary' })
+        const component = {
+            template: '<div/>',
+            setup() {
+                listen({ action2 }, { name: 'secondary' })
+            }
+        }
+        app = createApp(component)
+        app.use(client, { name: 'secondary' })
+        app.mount(dom.window.document.querySelector('#app'))
 
         client.receive({ data: '["action2", "data2"]' })
 
@@ -106,18 +102,24 @@ describe('Vue 3 Plugin', () => {
 
         const client = createSocket('ws://127.0.0.1:54322')
         const client2 = createSocket('ws://127.0.0.1:54322')
-        app = new MockApp()
+
+        const testListener1 = jest.fn()
+        const testListener2 = jest.fn()
+        const component = {
+            template: '<div/>',
+            setup() {
+                // Attempt to listen without subscribing on client1
+                listen({ privateAction: testListener1 }, { name: 'ws1' })
+                // Listen with subscription on client2
+                listen({ privateAction: testListener2 }, { name: 'ws2', subscribe: true })
+            }
+        }
+        app = createApp(component)
         app.use(client, { name: 'ws1' })
         app.use(client2, { name: 'ws2' })
+        app.mount(dom.window.document.querySelector('#app'))
 
-        await new Promise(res => client.once('connect', res))
-
-        // Attempt to listen without subscribing on client1
-        const testListener1 = jest.fn()
-        listen({ privateAction: testListener1 }, { name: 'ws1' })
-        // Listen with subscription on client2
-        const testListener2 = jest.fn()
-        listen({ privateAction: testListener2 }, { name: 'ws2', subscribe: true })
+        await new Promise(res => client2.once('connect', res))
 
         // Ensure subscriptions are set
         await delay(10)

@@ -1,6 +1,6 @@
 // For node.js usage outside of browsers
 if (typeof WebSocket === 'undefined') {
-    global.WebSocket = await import('ws')
+    global.WebSocket = (await import('ws')).WebSocket
 }
 import EventEmitter from 'events'
 import { createLogger } from './util'
