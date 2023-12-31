@@ -1,4 +1,4 @@
-class JSONArraySerializer {
+export class JSONArraySerializer {
     static encode(action, data, bounce) {
         const message = [action, data]
         if (bounce) message.push(bounce)
@@ -9,7 +9,7 @@ class JSONArraySerializer {
     }
 }
 
-class JSONObjSerializer {
+export class JSONObjSerializer {
     static encode(action, data, bounce) {
         const message = { action, data }
         if (bounce) message.bounce = bounce
@@ -19,9 +19,4 @@ class JSONObjSerializer {
         const { action, data, bounce } = JSON.parse(buffer.toString())
         return [action, data, bounce]
     }
-}
-
-module.exports = {
-    JSONArraySerializer,
-    JSONObjSerializer
 }

@@ -1,5 +1,5 @@
 // Stand-in for a real WebSocket
-class MockSocket {
+export class MockSocket {
     constructor(url) {
         this.url = url
         this.onmessage = () => {}
@@ -27,5 +27,3 @@ class MockSocket {
         // Do nothing
     }
 }
-
-module.exports = { MockSocket }

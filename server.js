@@ -1,10 +1,10 @@
-const WebSocketServer = require('ws').Server
-const { performance } = require('perf_hooks')
-const EventEmitter = require('events')
-const { createLogger } = require('./util')
-const { JSONArraySerializer } = require('./serializers')
+import { WebSocketServer } from 'ws'
+import { performance } from 'perf_hooks'
+import EventEmitter from 'events'
+import { createLogger } from './util.js'
+import { JSONArraySerializer } from './serializers.js'
 
-class Server extends EventEmitter {
+export class Server extends EventEmitter {
     constructor({ host = '127.0.0.1', port = 8090, verbosity = 1, serializer = JSONArraySerializer, maxSendBuffer = 20000, ...wssOpts } = {}) {
         super()
         this.clients = []
@@ -176,5 +176,3 @@ class ServerClient {
         return `Client ${this.id}`
     }
 }
-
-module.exports = { Server }

@@ -3,18 +3,17 @@
   "version": "5.0.1",
   "description": "Dead Simple Websockets",
   "main": "index.js",
-  "module": "client.js",
   "scripts": {
     "lint": "eslint .",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "perf": "node test/benchmark.js"
   },
+  "type": "module",
   "dependencies": {
     "events": "^3.3.0",
-    "ws": "^8.14.2"
+    "ws": "^8.16.0"
   },
   "files": [
-    "babel.config.js",
     "client.js",
     "index.js",
     "LICENSE",
@@ -47,7 +46,8 @@
     "coverageReporters": [
       "text"
     ],
-    "verbose": true
+    "verbose": true,
+    "transform": {}
   },
   "repository": {
     "type": "git",
@@ -55,14 +55,12 @@
   },
   "devDependencies": {
     "@appliedminds/eslint-config": "^1.6.0",
-    "@babel/core": "^7.23.2",
-    "@babel/preset-env": "^7.23.2",
-    "babel-jest": "^29.7.0",
     "benchmark": "^2.1.4",
-    "eslint": "^8.52.0",
+    "eslint": "^8.56.0",
     "eslint-plugin-jest": "^27.6.0",
     "jest": "^29.7.0",
-    "vue": "^3.3.7"
+    "jsdom": "^23.0.1",
+    "vue": "^3.4.3"
   },
   "author": "Ivo Janssen <hello@ivo.la>",
   "contributors": [

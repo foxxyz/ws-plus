@@ -1,7 +1,8 @@
-const http = require('http')
-const MockClient = require('ws')
-const { Server } = require('../server')
+import http from 'http'
+import MockClient from 'ws'
+import { Server } from '../server'
 import { JSONObjSerializer } from '../serializers'
+import { jest } from '@jest/globals'
 
 describe('Server Creation', () => {
     let server
@@ -369,6 +370,8 @@ describe('Server Client', () => {
         afterEach(async() => {
             mockClient.close()
             await new Promise(res => mockClient.once('close', res))
+            // Wait a short amount of time for the server to recognize the client has left
+            await new Promise(res => setTimeout(res, 10))
             await server.close()
         })
         beforeEach(async() => {

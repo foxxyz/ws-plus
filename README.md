@@ -10,8 +10,8 @@ Dead simple WebSocket communication for both Node.js and in-browser.
 * Automatic reconnections
 * Automatic connection support
 * [Subscription support](#subscriptions)
-* ES7 / Async support
-* [Vue](https://vuejs.org/) plugin support (Vue 3 supported!)
+* Async support
+* [Vue](https://vuejs.org/) plugin support
 * Fully tested
 
 ##### Contents
@@ -50,7 +50,7 @@ Usage Examples
 ### Server
 
 ```javascript
-const { Server } = require('ws-plus')
+import { Server } from 'ws-plus'
 
 // Start server on port
 const server = new Server({ port: 8088 })
@@ -129,20 +129,6 @@ client.send('unsubscribe', ['specialMessage', 'anotherAction'])
 
 When creating your app:
 
-##### Vue 2
-
-```javascript
-import { Client } from 'ws-plus'
-
-// Create your client
-const socketClient = new Client('ws://localhost:8082')
-
-// Make socket available to all components
-Vue.use(socketClient, { name: 'ws' })
-```
-
-##### Vue 3
-
 ```javascript
 import { createSocket } from 'ws-plus/vue'
 
@@ -153,7 +139,7 @@ const socketClient = createSocket('ws://localhost:8082')
 app.use(socketClient)
 ```
 
-#### Usage in a Component
+#### Usage in a Component (Options API)
 
 ```javascript
 export default {
@@ -164,7 +150,7 @@ export default {
 }
 ```
 
-#### Using with the Vue 3 Component API
+#### Using in a Component (Composition API)
 
 The [`listen` helper](#listenactions--object-options---name--string-subscribe--boolean-) automatically calls `.on` and `.off` for specified actions when the component is mounted and unmounted. Subscriptions can also be made automatically if desired.
 
@@ -172,20 +158,16 @@ The [`listen` helper](#listenactions--object-options---name--string-subscribe--b
 import { inject } from 'vue'
 import { listen } from 'ws-plus/vue'
 
-export default {
-    setup() {
-        function receive({ ticket }) {
-            console.info(`Ticket received: ${ticket}`)
-        }
-
-        listen({
-            'ticket/receive': receive
-        })
-
-        const ws = inject('$ws')
-        ws.send('ticket/request', { data: ... })
-    }
+function receive({ ticket }) {
+    console.info(`Ticket received: ${ticket}`)
 }
+
+listen({
+    'ticket/receive': receive
+})
+
+const ws = inject('$ws')
+ws.send('ticket/request', { data: ... })
 ```
 
 #### Multiple Clients

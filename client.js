@@ -1,12 +1,12 @@
 // For node.js usage outside of browsers
 if (typeof WebSocket === 'undefined') {
-    global.WebSocket = require('ws')
+    global.WebSocket = (await import('ws')).WebSocket
 }
-const EventEmitter = require('events')
-const { createLogger } = require('./util')
-const { JSONArraySerializer } = require('./serializers')
+import EventEmitter from 'events'
+import { createLogger } from './util.js'
+import { JSONArraySerializer } from './serializers.js'
 
-class Client extends EventEmitter {
+export class Client extends EventEmitter {
     // Support Vue components
     install(app, { name = 'ws' } = {}) {
         // Vue 3
@@ -80,5 +80,3 @@ class Client extends EventEmitter {
         this.socket.send(this.serializer.encode(action, data, bounce))
     }
 }
-
-module.exports = { Client }

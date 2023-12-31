@@ -1,6 +1,6 @@
-const Benchmark = require('benchmark')
-const { Client } = require('..')
-const { MockSocket } = require('./mocks/socket')
+import Benchmark from 'benchmark'
+import { Client } from '../index.js'
+import { MockSocket } from './mocks/socket.js'
 
 global.WebSocket = MockSocket
 
