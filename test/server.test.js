@@ -370,6 +370,8 @@ describe('Server Client', () => {
         afterEach(async() => {
             mockClient.close()
             await new Promise(res => mockClient.once('close', res))
+            // Wait a short amount of time for the server to recognize the client has left
+            await new Promise(res => setTimeout(res, 10))
             await server.close()
         })
         beforeEach(async() => {

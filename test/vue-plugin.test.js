@@ -100,8 +100,8 @@ describe('Vue 3 Plugin', () => {
         server = new Server({ port: 54322, verbosity: 0 })
         await new Promise(res => server.server.on('listening', res))
 
-        const client = createSocket('ws://127.0.0.1:54322')
-        const client2 = createSocket('ws://127.0.0.1:54322')
+        const client = createSocket('ws://127.0.0.1:54322', { verbosity: 0 })
+        const client2 = createSocket('ws://127.0.0.1:54322', { verbosity: 0 })
 
         const testListener1 = jest.fn()
         const testListener2 = jest.fn()
