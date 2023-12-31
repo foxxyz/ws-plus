@@ -3,8 +3,8 @@ if (typeof WebSocket === 'undefined') {
     global.WebSocket = (await import('ws')).WebSocket
 }
 import EventEmitter from 'events'
-import { createLogger } from './util'
-import { JSONArraySerializer } from './serializers'
+import { createLogger } from './util.js'
+import { JSONArraySerializer } from './serializers.js'
 
 export class Client extends EventEmitter {
     // Support Vue components

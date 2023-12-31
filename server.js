@@ -1,8 +1,8 @@
 import { WebSocketServer } from 'ws'
 import { performance } from 'perf_hooks'
 import EventEmitter from 'events'
-import { createLogger } from './util'
-import { JSONArraySerializer } from './serializers'
+import { createLogger } from './util.js'
+import { JSONArraySerializer } from './serializers.js'
 
 export class Server extends EventEmitter {
     constructor({ host = '127.0.0.1', port = 8090, verbosity = 1, serializer = JSONArraySerializer, maxSendBuffer = 20000, ...wssOpts } = {}) {

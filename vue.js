@@ -1,4 +1,4 @@
-import { Client } from '.'
+import { Client } from './index.js'
 import { inject, onBeforeUnmount, reactive } from 'vue'
 
 export function createSocket(url, { autoConnect = true, ...options } = {}) {
