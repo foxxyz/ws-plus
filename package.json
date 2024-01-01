@@ -24,7 +24,7 @@
     "vue.js"
   ],
   "peerDependencies": {
-    "vue": ">3"
+    "vue": ">=3"
   },
   "peerDependenciesMeta": {
     "vue": {
@@ -38,8 +38,8 @@
     "vue"
   ],
   "browser": {
-    "ws": false,
-    "./server.js": false
+    "./index.js": "./client.js",
+    "ws": false
   },
   "jest": {
     "collectCoverage": true,
