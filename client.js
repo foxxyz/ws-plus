@@ -1,7 +1,3 @@
-// For node.js usage outside of browsers
-if (typeof WebSocket === 'undefined') {
-    global.WebSocket = (await import('ws')).WebSocket
-}
 import EventEmitter from 'events'
 import { createLogger } from './util.js'
 import { JSONArraySerializer } from './serializers.js'
@@ -42,7 +38,11 @@ export class Client extends EventEmitter {
     error() {
         this.log.warn(`Socket connection to ${this.url} refused`)
     }
-    connect() {
+    async connect() {
+        // For node.js usage outside of browsers
+        if (typeof WebSocket === 'undefined') {
+            global.WebSocket = (await import('ws')).WebSocket
+        }
         this.socket = new WebSocket(this.url)
         this.socket.onerror = this.error.bind(this)
         this.socket.onmessage = this.receive.bind(this)
