@@ -9,15 +9,8 @@ import { JSONArraySerializer } from './serializers.js'
 export class Client extends EventEmitter {
     // Support Vue components
     install(app, { name = 'ws' } = {}) {
-        // Vue 3
-        if (app.config) {
-            app.config.globalProperties[`$${name}`] = this
-            app.provide(`$${name}`, this)
-        // Vue 2
-        } else {
-            app.prototype[`$${name}`] = this
-            app.util.defineReactive(this, 'connected', this.connected)
-        }
+        app.config.globalProperties[`$${name}`] = this
+        app.provide(`$${name}`, this)
     }
     constructor(url, { reconnectInterval = 10, maxQueueSize = 100, autoConnect = true, verbosity = 1, serializer = JSONArraySerializer } = {}) {
         super()
