@@ -51,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/foxxyz/ws-plus"
+    "url": "git+https://github.com/foxxyz/ws-plus"
   },
   "devDependencies": {
     "@appliedminds/eslint-config": "^1.6.0",
