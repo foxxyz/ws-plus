@@ -25,6 +25,8 @@ export class Client extends EventEmitter {
     close() {
         // Close with correct disconnection code
         this.socket.close(1000)
+        // Stop trying to reconnect if manually closed
+        clearTimeout(this._reconnectTimer)
     }
     closed(e) {
         this.connected = false
@@ -33,7 +35,9 @@ export class Client extends EventEmitter {
         if (e.code === 1000) return
         // Otherwise, reconnect
         this.log.warn(`Socket closed. Retrying in ${this.reconnectInterval} seconds...`)
-        setTimeout(this.connect.bind(this), this.reconnectInterval * 1000)
+        // Clear any existing reconnect timers
+        clearTimeout(this._reconnectTimer)
+        this._reconnectTimer = setTimeout(this.connect.bind(this), this.reconnectInterval * 1000)
     }
     error() {
         this.log.warn(`Socket connection to ${this.url} refused`)

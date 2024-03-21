@@ -70,6 +70,22 @@ describe('Client', () => {
             expect(sendFunction).toHaveBeenCalled()
             expect(client.queue.length).toBe(0)
         })
+        it('quits reconnecting on manual close', async() => {
+            // Set 10ms reconnect interval
+            client.reconnectInterval = 0.01
+            await delay(60)
+            // Spy on connect function
+            const connectFunction = jest.spyOn(client, 'connect')
+            // Force close
+            client.socket.close()
+            // Manually close
+            client.close()
+            // Reconnect
+            client.connect()
+            // Wait at least reconnect interval
+            await delay(100)
+            expect(connectFunction).toHaveBeenCalledTimes(1)
+        })
         it('reconnects automatically', async() => {
             // Set 10ms reconnect interval
             client.reconnectInterval = 0.01
